@@ -3,15 +3,13 @@ using Antlr4.Runtime;
 using Cool;
 
 var inputFile = "bool.cl";
-var istream = new StreamReader(inputFile);
+var streamReader = new StreamReader(inputFile);
 
-AntlrInputStream input = new(istream);
+AntlrInputStream input = new(streamReader);
 CoolGrammarLexer lexer = new(input);
 CommonTokenStream tokens = new(lexer);
 CoolGrammarParser parser = new(tokens);
 var context = parser.program();
-
-Console.WriteLine(context.ToStringTree());
 
 ParseTreeWalker walker = new();
 CoolGrammarListener listener = new();

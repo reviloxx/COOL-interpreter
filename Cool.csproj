@@ -10,14 +10,7 @@
 
   <ItemGroup>
     <None Remove=".gitignore" />
-    <None Remove="CoolGrammar.g4" />
     <None Remove="LICENSE" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Antlr4 Include="CoolGrammar.g4">
-      <CustomToolNamespace>Cool.Generated</CustomToolNamespace>
-    </Antlr4>
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +21,9 @@
   <ItemGroup>
     <None Update="bool.cl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="CoolGrammar.g4">
+      <CustomToolNamespace>Cool.Generated</CustomToolNamespace>
     </None>
   </ItemGroup>
 

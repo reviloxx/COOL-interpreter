@@ -1,267 +1,163 @@
-﻿using Antlr4.Runtime;
-using Antlr4.Runtime.Misc;
+﻿using Antlr4.Runtime.Misc;
 
 namespace Cool;
 
 public class CoolGrammarListener : CoolGrammarBaseListener
 {
-    public override void EnterArithmetic([NotNull] CoolGrammarParser.ArithmeticContext context)
-    {
-        throw new NotImplementedException();
-    }
+    private readonly Dictionary<string, object?> _symbolTable = [];
+    private readonly Dictionary<string, CoolClass> _classDefinitions = [];
 
-    public override void EnterAssignment([NotNull] CoolGrammarParser.AssignmentContext context)
-    {
-        throw new NotImplementedException();
-    }
+    private object? _currentValue;
 
-    public override void EnterBlock([NotNull] CoolGrammarParser.BlockContext context)
+    public override void EnterProgram([NotNull] CoolGrammarParser.ProgramContext context)
     {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterBoolean([NotNull] CoolGrammarParser.BooleanContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterBoolNot([NotNull] CoolGrammarParser.BoolNotContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterCase([NotNull] CoolGrammarParser.CaseContext context)
-    {
-        throw new NotImplementedException();
+        Console.WriteLine("Executing COOL Program...");
     }
 
     public override void EnterClassDefine([NotNull] CoolGrammarParser.ClassDefineContext context)
     {
-        throw new NotImplementedException();
-    }
+        var name = context.TYPE(0).GetText();
+        var parentName = context.TYPE(1)?.GetText();
 
-    public override void EnterComparisson([NotNull] CoolGrammarParser.ComparissonContext context)
-    {
-        throw new NotImplementedException();
-    }
+        var coolClass = new CoolClass(name, parentName);
+        _classDefinitions[name] = coolClass;
 
-    public override void EnterDispatchExplicit([NotNull] CoolGrammarParser.DispatchExplicitContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterDispatchImplicit([NotNull] CoolGrammarParser.DispatchImplicitContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterEveryRule(ParserRuleContext ctx)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterFeature([NotNull] CoolGrammarParser.FeatureContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterFormal([NotNull] CoolGrammarParser.FormalContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterId([NotNull] CoolGrammarParser.IdContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterIf([NotNull] CoolGrammarParser.IfContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterInt([NotNull] CoolGrammarParser.IntContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterIsvoid([NotNull] CoolGrammarParser.IsvoidContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterLetIn([NotNull] CoolGrammarParser.LetInContext context)
-    {
-        throw new NotImplementedException();
+        Console.WriteLine($"Defined Class: {name}");
     }
 
     public override void EnterMethod([NotNull] CoolGrammarParser.MethodContext context)
     {
-        throw new NotImplementedException();
-    }
+        var methodName = context.ID().GetText();
 
-    public override void EnterNegative([NotNull] CoolGrammarParser.NegativeContext context)
-    {
-        throw new NotImplementedException();
-    }
+        _currentValue = null;
 
-    public override void EnterNew([NotNull] CoolGrammarParser.NewContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterParentheses([NotNull] CoolGrammarParser.ParenthesesContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void EnterProgram([NotNull] CoolGrammarParser.ProgramContext context)
-    {
-        throw new NotImplementedException();
+        Console.WriteLine($"Executing Method: {methodName}");
+        ExecuteExpression(context.expression());
     }
 
     public override void EnterProperty([NotNull] CoolGrammarParser.PropertyContext context)
     {
-        throw new NotImplementedException();
+        var propertyName = context.formal().ID().GetText();
+        var propertyType = context.formal().TYPE().GetText();
+
+        object? value = null;
+
+        if (context.expression() != null)
+        {
+            ExecuteExpression(context.expression());
+            value = _currentValue;
+        }
+
+        _symbolTable[propertyName] = value;
+        Console.WriteLine($"Property {propertyName} of type {propertyType} initialized with: {value}");
     }
 
-    public override void EnterString([NotNull] CoolGrammarParser.StringContext context)
+    public override void EnterAssignment([NotNull] CoolGrammarParser.AssignmentContext context)
     {
-        throw new NotImplementedException();
+        var variableName = context.ID().GetText();
+        ExecuteExpression(context.expression());
+        _symbolTable[variableName] = _currentValue;
+
+        Console.WriteLine($"Assigned {variableName} = {_currentValue}");
+    }
+
+    public override void EnterArithmetic([NotNull] CoolGrammarParser.ArithmeticContext context)
+    {
+        ExecuteExpression(context.expression(0));
+        var leftValue = Convert.ToInt32(_currentValue);
+
+        ExecuteExpression(context.expression(1));
+        var rightValue = Convert.ToInt32(_currentValue);
+
+        _currentValue = context.op.Text switch
+        {
+            "+" => leftValue + rightValue,
+            "-" => leftValue - rightValue,
+            "*" => leftValue * rightValue,
+            "/" => rightValue != 0 ? leftValue / rightValue : throw new DivideByZeroException(),
+            _ => throw new NotSupportedException($"Operator {context.op.Text} is not supported.")
+        };
+
+        Console.WriteLine($"Arithmetic Result: {_currentValue}");
+    }
+
+    public override void EnterIf([NotNull] CoolGrammarParser.IfContext context)
+    {
+        ExecuteExpression(context.expression(0));
+        var condition = Convert.ToBoolean(_currentValue);
+
+        if (condition)
+            ExecuteExpression(context.expression(1));
+        else
+            ExecuteExpression(context.expression(2));
+
+        Console.WriteLine($"If Result: {_currentValue}");
     }
 
     public override void EnterWhile([NotNull] CoolGrammarParser.WhileContext context)
     {
-        throw new NotImplementedException();
+        while (true)
+        {
+            ExecuteExpression(context.expression(0));
+            var condition = Convert.ToBoolean(_currentValue);
+
+            if (!condition) break;
+
+            ExecuteExpression(context.expression(1));
+        }
+
+        Console.WriteLine("While Loop Completed");
     }
 
-    public override void ExitArithmetic([NotNull] CoolGrammarParser.ArithmeticContext context)
+    private void ExecuteExpression(CoolGrammarParser.ExpressionContext context)
     {
-        throw new NotImplementedException();
-    }
+        if (context == null) return;
 
-    public override void ExitAssignment([NotNull] CoolGrammarParser.AssignmentContext context)
-    {
-        throw new NotImplementedException();
-    }
+        if (context is CoolGrammarParser.ArithmeticContext arithmeticContext)
+        {
+            EnterArithmetic(arithmeticContext);
+        }
+        else if (context is CoolGrammarParser.AssignmentContext assignmentContext)
+        {
+            EnterAssignment(assignmentContext);
+        }
+        else if (context is CoolGrammarParser.BooleanContext booleanContext)
+        {
+            _currentValue = booleanContext.value.Type == CoolGrammarParser.TRUE ? true : false;
+        }
+        else if (context is CoolGrammarParser.IntContext intContext)
+        {
+            _currentValue = int.Parse(intContext.GetText());
+        }
+        else if (context is CoolGrammarParser.StringContext stringContext)
+        {
+            _currentValue = stringContext.GetText().Trim('"');
+        }
+        else if (context is CoolGrammarParser.IdContext idContext)
+        {
+            var variableName = idContext.GetText();
 
-    public override void ExitBlock([NotNull] CoolGrammarParser.BlockContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitBoolean([NotNull] CoolGrammarParser.BooleanContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitBoolNot([NotNull] CoolGrammarParser.BoolNotContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitCase([NotNull] CoolGrammarParser.CaseContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitClassDefine([NotNull] CoolGrammarParser.ClassDefineContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitComparisson([NotNull] CoolGrammarParser.ComparissonContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitDispatchExplicit([NotNull] CoolGrammarParser.DispatchExplicitContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitDispatchImplicit([NotNull] CoolGrammarParser.DispatchImplicitContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitEveryRule(ParserRuleContext ctx)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitFeature([NotNull] CoolGrammarParser.FeatureContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitFormal([NotNull] CoolGrammarParser.FormalContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitId([NotNull] CoolGrammarParser.IdContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitIf([NotNull] CoolGrammarParser.IfContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitInt([NotNull] CoolGrammarParser.IntContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitIsvoid([NotNull] CoolGrammarParser.IsvoidContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitLetIn([NotNull] CoolGrammarParser.LetInContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitMethod([NotNull] CoolGrammarParser.MethodContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitNegative([NotNull] CoolGrammarParser.NegativeContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitNew([NotNull] CoolGrammarParser.NewContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitParentheses([NotNull] CoolGrammarParser.ParenthesesContext context)
-    {
-        throw new NotImplementedException();
+            if (_symbolTable.ContainsKey(variableName))
+                _currentValue = _symbolTable[variableName];
+            else
+                throw new Exception($"Variable {variableName} is not defined.");
+        }
+        else if (context is CoolGrammarParser.IfContext ifContext)
+        {
+            EnterIf(ifContext);
+        }
+        else if (context is CoolGrammarParser.WhileContext whileContext)
+        {
+            EnterWhile(whileContext);
+        }
+        else
+        {
+            throw new Exception($"Unsupported expression type: {context.GetType().Name}");
+        }
     }
 
     public override void ExitProgram([NotNull] CoolGrammarParser.ProgramContext context)
     {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitProperty([NotNull] CoolGrammarParser.PropertyContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitString([NotNull] CoolGrammarParser.StringContext context)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void ExitWhile([NotNull] CoolGrammarParser.WhileContext context)
-    {
-        throw new NotImplementedException();
+        Console.WriteLine("Execution Completed.");
     }
 }
