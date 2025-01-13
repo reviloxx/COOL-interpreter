@@ -1,163 +1,169 @@
-﻿using Antlr4.Runtime.Misc;
-
-namespace Cool;
+﻿namespace Cool;
 
 public class CoolGrammarListener : CoolGrammarBaseListener
 {
-    private readonly Dictionary<string, object?> _symbolTable = [];
-    private readonly Dictionary<string, CoolClass> _classDefinitions = [];
+    private readonly Dictionary<string, string?> classHierarchy = [];
+    private readonly Dictionary<string, Dictionary<string, CoolMethod>> classMethods = [];
+    private readonly Stack<object?> expressionStack = new();
+    private readonly Dictionary<string, object?> variables = [];
+    private string currentClass = "";
 
-    private object? _currentValue;
+    public record CoolMethod(string Name, List<string> Parameters, Action<List<object?>> Body);
 
-    public override void EnterProgram([NotNull] CoolGrammarParser.ProgramContext context)
+    public override void EnterProgram(CoolGrammarParser.ProgramContext context)
     {
-        Console.WriteLine("Executing COOL Program...");
+        variables.Add("self", null);
+
+        classMethods["IO"] = new() { { "out_string", CoolMethods.OutString } };
     }
 
-    public override void EnterClassDefine([NotNull] CoolGrammarParser.ClassDefineContext context)
+    public override void EnterClassDefine(CoolGrammarParser.ClassDefineContext context)
     {
-        var name = context.TYPE(0).GetText();
-        var parentName = context.TYPE(1)?.GetText();
+        var className = context.TYPE(0).GetText();
+        string? parentClass = context.TYPE(1)?.GetText();
+        classHierarchy[className] = parentClass;
 
-        var coolClass = new CoolClass(name, parentName);
-        _classDefinitions[name] = coolClass;
+        if (!classMethods.ContainsKey(className))
+            classMethods[className] = [];
 
-        Console.WriteLine($"Defined Class: {name}");
+        currentClass = className;
     }
 
-    public override void EnterMethod([NotNull] CoolGrammarParser.MethodContext context)
+    public override void EnterMethod(CoolGrammarParser.MethodContext context)
     {
         var methodName = context.ID().GetText();
+        var parameters = context.formal().Select(f => f.ID().GetText()).ToList();
+        var methodExpression = context.expression();
 
-        _currentValue = null;
+        classMethods[currentClass][methodName] = new CoolMethod(methodName, parameters, args =>
+        {
+            // Bind method arguments to local variables.
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                variables[parameters[i]] = args[i];
+            }
 
-        Console.WriteLine($"Executing Method: {methodName}");
-        ExecuteExpression(context.expression());
+            // Execute the method body.
+            ExecuteExpression(methodExpression);
+
+            // Clear local variables after execution.
+            foreach (var param in parameters)
+            {
+                variables.Remove(param);
+            }
+        });
     }
 
-    public override void EnterProperty([NotNull] CoolGrammarParser.PropertyContext context)
+    public override void EnterDispatchImplicit(CoolGrammarParser.DispatchImplicitContext context)
     {
-        var propertyName = context.formal().ID().GetText();
-        var propertyType = context.formal().TYPE().GetText();
+        var methodName = context.ID().GetText();
+        var arguments = context.expression().Select(EvaluateExpression).ToList();
 
-        object? value = null;
-
-        if (context.expression() != null)
+        var method = ResolveMethod(currentClass, methodName);
+        if (method.Parameters.Count != arguments.Count)
         {
-            ExecuteExpression(context.expression());
-            value = _currentValue;
+            throw new Exception($"Method {methodName} expects {method.Parameters.Count} arguments but got {arguments.Count}.");
         }
 
-        _symbolTable[propertyName] = value;
-        Console.WriteLine($"Property {propertyName} of type {propertyType} initialized with: {value}");
+        method.Body(arguments);
     }
 
-    public override void EnterAssignment([NotNull] CoolGrammarParser.AssignmentContext context)
+    public override void EnterAssignment(CoolGrammarParser.AssignmentContext context)
     {
         var variableName = context.ID().GetText();
-        ExecuteExpression(context.expression());
-        _symbolTable[variableName] = _currentValue;
-
-        Console.WriteLine($"Assigned {variableName} = {_currentValue}");
+        var value = EvaluateExpression(context.expression());
+        variables[variableName] = value;
+        expressionStack.Push(value);
     }
 
-    public override void EnterArithmetic([NotNull] CoolGrammarParser.ArithmeticContext context)
+    public override void EnterId(CoolGrammarParser.IdContext context)
     {
-        ExecuteExpression(context.expression(0));
-        var leftValue = Convert.ToInt32(_currentValue);
+        var variableName = context.ID().GetText();
 
-        ExecuteExpression(context.expression(1));
-        var rightValue = Convert.ToInt32(_currentValue);
+        if (!variables.TryGetValue(variableName, out object? value))
+            throw new Exception($"Undefined variable: {variableName}");
 
-        _currentValue = context.op.Text switch
+        expressionStack.Push(value);
+    }
+
+    public override void EnterString(CoolGrammarParser.StringContext context)
+    {
+        expressionStack.Push(context.GetText().Trim('"'));
+    }
+
+    public override void EnterInt(CoolGrammarParser.IntContext context)
+    {
+        expressionStack.Push(int.Parse(context.GetText()));
+    }
+
+    public override void EnterBlock(CoolGrammarParser.BlockContext context)
+    {
+        foreach (var expr in context.expression())
         {
-            "+" => leftValue + rightValue,
-            "-" => leftValue - rightValue,
-            "*" => leftValue * rightValue,
-            "/" => rightValue != 0 ? leftValue / rightValue : throw new DivideByZeroException(),
-            _ => throw new NotSupportedException($"Operator {context.op.Text} is not supported.")
-        };
-
-        Console.WriteLine($"Arithmetic Result: {_currentValue}");
+            ExecuteExpression(expr);
+        }
     }
 
-    public override void EnterIf([NotNull] CoolGrammarParser.IfContext context)
+    private CoolMethod ResolveMethod(string className, string methodName)
     {
-        ExecuteExpression(context.expression(0));
-        var condition = Convert.ToBoolean(_currentValue);
+        string? currentClass = className;
 
-        if (condition)
-            ExecuteExpression(context.expression(1));
-        else
-            ExecuteExpression(context.expression(2));
-
-        Console.WriteLine($"If Result: {_currentValue}");
-    }
-
-    public override void EnterWhile([NotNull] CoolGrammarParser.WhileContext context)
-    {
-        while (true)
+        while (currentClass != null)
         {
-            ExecuteExpression(context.expression(0));
-            var condition = Convert.ToBoolean(_currentValue);
-
-            if (!condition) break;
-
-            ExecuteExpression(context.expression(1));
+            if (classMethods.TryGetValue(currentClass, out var methods) && methods.ContainsKey(methodName))
+            {
+                return methods[methodName];
+            }
+            classHierarchy.TryGetValue(currentClass, out currentClass);
         }
 
-        Console.WriteLine("While Loop Completed");
+        throw new Exception($"Undefined method: {methodName}");
     }
 
     private void ExecuteExpression(CoolGrammarParser.ExpressionContext context)
     {
-        if (context == null) return;
+        if (context is CoolGrammarParser.DispatchImplicitContext implicitDispatch)
+        {
+            ExitDispatchImplicit(implicitDispatch);
+        }
+        else if (context is CoolGrammarParser.DispatchExplicitContext explicitDispatch)
+        {
+            ExitDispatchExplicit(explicitDispatch);
+        }
+        else if (context is CoolGrammarParser.IntContext intExpr)
+        {
+            expressionStack.Push(int.Parse(intExpr.INT().GetText()));
+        }
+        else if (context is CoolGrammarParser.StringContext stringExpr)
+        {
+            expressionStack.Push(stringExpr.STRING().GetText().Trim('"'));
+        }
+        else if (context is CoolGrammarParser.BooleanContext boolExpr)
+        {
+            expressionStack.Push(boolExpr.TRUE() != null);
+        }
+        else if (context is CoolGrammarParser.AssignmentContext assignExpr)
+        {
+            ExecuteExpression(assignExpr.expression());
+            variables.Add(assignExpr.ID().GetText(), expressionStack.Pop());
+        }
+        else if (context is CoolGrammarParser.IdContext idExpr)
+        {
+            string varName = idExpr.ID().GetText();
+            if (!variables.TryGetValue(varName, out object? value))
+                throw new Exception($"Undefined variable: {varName}");
 
-        if (context is CoolGrammarParser.ArithmeticContext arithmeticContext)
-        {
-            EnterArithmetic(arithmeticContext);
-        }
-        else if (context is CoolGrammarParser.AssignmentContext assignmentContext)
-        {
-            EnterAssignment(assignmentContext);
-        }
-        else if (context is CoolGrammarParser.BooleanContext booleanContext)
-        {
-            _currentValue = booleanContext.value.Type == CoolGrammarParser.TRUE ? true : false;
-        }
-        else if (context is CoolGrammarParser.IntContext intContext)
-        {
-            _currentValue = int.Parse(intContext.GetText());
-        }
-        else if (context is CoolGrammarParser.StringContext stringContext)
-        {
-            _currentValue = stringContext.GetText().Trim('"');
-        }
-        else if (context is CoolGrammarParser.IdContext idContext)
-        {
-            var variableName = idContext.GetText();
-
-            if (_symbolTable.ContainsKey(variableName))
-                _currentValue = _symbolTable[variableName];
-            else
-                throw new Exception($"Variable {variableName} is not defined.");
-        }
-        else if (context is CoolGrammarParser.IfContext ifContext)
-        {
-            EnterIf(ifContext);
-        }
-        else if (context is CoolGrammarParser.WhileContext whileContext)
-        {
-            EnterWhile(whileContext);
+            expressionStack.Push(value);
         }
         else
         {
-            throw new Exception($"Unsupported expression type: {context.GetType().Name}");
+            throw new NotImplementedException($"Expression type not implemented: {context.GetType().Name}");
         }
     }
 
-    public override void ExitProgram([NotNull] CoolGrammarParser.ProgramContext context)
+    private object? EvaluateExpression(CoolGrammarParser.ExpressionContext context)
     {
-        Console.WriteLine("Execution Completed.");
+        ExecuteExpression(context);
+        return expressionStack.Pop();
     }
 }

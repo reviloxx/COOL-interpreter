@@ -2,7 +2,7 @@
 using Antlr4.Runtime;
 using Cool;
 
-var inputFile = "bool.cl";
+var inputFile = "helloworld.cl";
 var streamReader = new StreamReader(inputFile);
 
 AntlrInputStream input = new(streamReader);
