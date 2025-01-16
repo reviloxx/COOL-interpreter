@@ -25,6 +25,6 @@ static void StartVisitor(ProgramContext context)
 static void StartListener(ProgramContext context)
 {
     ParseTreeWalker walker = new();
-    CoolGrammarDebugListener listener = new();
+    CoolGrammarListener listener = new();
     walker.Walk(listener, context);
 }

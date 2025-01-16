@@ -1,12 +1,68 @@
 ﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 using static CoolGrammarParser;
 
 namespace Cool.Interpreter;
 
 public class CoolGrammarVisitor : CoolGrammarBaseVisitor<object?>
 {
+    private readonly Dictionary<string, CoolClass> _classDefinitions = [];
     private readonly Dictionary<string, object?> _variables = [];
+    
     private bool _invertNextAssignment = false;
+    private CoolClass? _classToDefine;
+
+    public override object? VisitClassDefine([NotNull] ClassDefineContext context)
+    {
+        var className = context.TYPE(0).GetText();
+        var baseClassName = context.TYPE(1)?.GetText();
+
+        _classToDefine = new(className, baseClassName);
+
+        foreach (var feature in context.feature())
+        {
+            Visit(feature);
+        }
+
+        _classDefinitions.Add(_classToDefine.Name, _classToDefine);
+        _classToDefine = null;
+        return null;
+    }
+
+    public override object? VisitFeature([NotNull] FeatureContext context)
+    {
+        if (_classToDefine == null)
+            throw new Exception("Failed to add feature to class definition!");
+
+        if (context.method() != null)
+            _classToDefine.AddMethod(context.method().ID().GetText(), context.method());
+
+        // TODO
+        //if (context.property() != null)
+        //    _classToDefine.AddProperty(context.property().ASSIGNMENT().)
+
+        return null;
+    }
+
+    public override object? VisitBlock([NotNull] BlockContext context)
+    {
+        foreach (var expression in context.expression())
+        {
+            Visit(expression);
+        }
+        return null;
+    }
+
+    public override object? VisitMethod([NotNull] MethodContext context)
+    {
+        var methodName = context.ID().GetText();
+        var args = context.formal().Select(Visit);
+        var returnType = context.TYPE().GetText();
+
+        Visit(context.expression());
+
+        return null;
+    }
 
     public override object? VisitAssignment(AssignmentContext context)
     {
@@ -19,7 +75,7 @@ public class CoolGrammarVisitor : CoolGrammarBaseVisitor<object?>
             return null;
         }
 
-        _variables[varname] = _invertNextAssignment? value : !(bool)value!;
+        _variables[varname] = _invertNextAssignment? !(bool)value! : value;
         _invertNextAssignment = false;
 
         return null;
@@ -139,9 +195,86 @@ public class CoolGrammarVisitor : CoolGrammarBaseVisitor<object?>
         var methodName = context.ID().GetText();
         var args = context.expression().Select(Visit).ToList();
 
-        if (methodName == "out_string") 
+        if (methodName == "out_string")
+        {
             Console.WriteLine(args[0]?.ToString());
+            return null;
+        }
+
+        foreach (var expression in context.expression())
+        {
+            // TODO: how to call other methods?
+            Visit(expression);
+        }        
 
         return null;
+    }
+
+    public override object? VisitProgram([NotNull] ProgramContext context)
+    {
+        foreach (var classDefine in context.classDefine())
+        {
+            Visit(classDefine);
+        }
+
+        var mainClass = _classDefinitions["Main"];
+        Visit(mainClass.GetMethod("main"));
+
+        return null;
+    }
+
+    public override object? VisitProperty([NotNull] PropertyContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitFormal([NotNull] FormalContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitNew([NotNull] NewContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitParentheses([NotNull] ParenthesesContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitLetIn([NotNull] LetInContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitIsvoid([NotNull] IsvoidContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitWhile([NotNull] WhileContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitNegative([NotNull] NegativeContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitIf([NotNull] IfContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitCase([NotNull] CaseContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? VisitDispatchExplicit([NotNull] DispatchExplicitContext context)
+    {
+        throw new NotImplementedException();
     }
 }

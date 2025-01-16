@@ -1,6 +1,13 @@
 class Main inherits IO {
+    test() : SELF_TYPE {
+        {
+            out_string("Hello from test!");
+        }
+    };
     main() : SELF_TYPE {
         {
+            test();
+
             x <- not true;
             x <- false;
 
