@@ -47,7 +47,7 @@ public class AlgorithmTests : CoolGrammarListenerTestsBase
         var file = FileHelper.GetFile(TestType.AlgorithmSuccess, testCase);
         var context = GetProgramContext(file);
 
-        Assert.DoesNotThrow(() => WalkProgramContext(context));
+        Assert.DoesNotThrow(() => StartVisitor(context));
     }
 
     [Test]
@@ -57,7 +57,7 @@ public class AlgorithmTests : CoolGrammarListenerTestsBase
         var file = FileHelper.GetFile(TestType.AlgorithmFail, testCase);
         var context = GetProgramContext(file);
 
-        Assert.Throws<Exception>(() => WalkProgramContext(context));
+        Assert.Throws<Exception>(() => StartVisitor(context));
     }
 }
 
@@ -190,7 +190,7 @@ public class ParsingTests : CoolGrammarListenerTestsBase
         var file = FileHelper.GetFile(TestType.ParsingSuccess, testCase);
         var context = GetProgramContext(file);
 
-        Assert.DoesNotThrow(() => WalkProgramContext(context));
+        Assert.DoesNotThrow(() => StartVisitor(context));
     }
 
     [Test]
@@ -234,7 +234,7 @@ public class ParsingTests : CoolGrammarListenerTestsBase
         var file = FileHelper.GetFile(TestType.ParsingFail, testCase);
         var context = GetProgramContext(file);
 
-        Assert.Throws<Exception>(() => WalkProgramContext(context));
+        Assert.Throws<Exception>(() => StartVisitor(context));
     }
 }
 
@@ -357,7 +357,7 @@ public class SemanticsTests : CoolGrammarListenerTestsBase
         var file = FileHelper.GetFile(TestType.SemanticsSuccess, testCase);
         var context = GetProgramContext(file);
 
-        Assert.DoesNotThrow(() => WalkProgramContext(context));
+        Assert.DoesNotThrow(() => StartVisitor(context));
     }
 
     [Test]
@@ -392,6 +392,6 @@ public class SemanticsTests : CoolGrammarListenerTestsBase
         var file = FileHelper.GetFile(TestType.SemanticsFail, testCase);
         var context = GetProgramContext(file);
 
-        Assert.Throws<Exception>(() => WalkProgramContext(context));
+        Assert.Throws<Exception>(() => StartVisitor(context));
     }
 }

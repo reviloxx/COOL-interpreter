@@ -1,4 +1,4 @@
-﻿namespace Cool;
+﻿namespace Cool.Interpreter;
 
 public class CoolGrammarListener : CoolGrammarBaseListener
 {
@@ -13,8 +13,6 @@ public class CoolGrammarListener : CoolGrammarBaseListener
     public override void EnterProgram(CoolGrammarParser.ProgramContext context)
     {
         variables.Add("self", null);
-
-        classMethods["IO"] = new() { { "out_string", CoolMethods.OutString } };
     }
 
     public override void EnterClassDefine(CoolGrammarParser.ClassDefineContext context)

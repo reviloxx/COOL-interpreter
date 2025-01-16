@@ -1,4 +1,6 @@
-﻿namespace UnitTests;
+﻿using Cool.Interpreter;
+
+namespace UnitTests;
 
 public abstract class CoolGrammarListenerTestsBase
 {
@@ -14,10 +16,16 @@ public abstract class CoolGrammarListenerTestsBase
         return parser.program();
     }
 
-    protected void WalkProgramContext(ProgramContext context)
+    protected void StartVisitor(ProgramContext context)
+    {
+        CoolGrammarVisitor visitor = new();
+        visitor.Visit(context);
+    }
+
+    protected void StartListener(ProgramContext context)
     {
         ParseTreeWalker walker = new();
-        CoolGrammarListener listener = new();
+        CoolGrammarDebugListener listener = new();
         walker.Walk(listener, context);
     }
 }
