@@ -4,8 +4,6 @@ namespace Cool.Interpreter.ASTNodes;
 
 public class ProgramNode : AstNode
 {
-    public IdNode Id { get; set; }
-    
     public List<ClassDefineNode> ClassDefineNodes = new();
 
     public ProgramNode(ParserRuleContext context) : base(context)

@@ -8,77 +8,47 @@ namespace Cool.Interpreter;
 public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 {
     // private readonly Dictionary<string, ClassDefineNode> _classDefinitions = [];
-    private readonly List<ClassDefineNode> _classDefinitions = [];
+    // private readonly List<ClassDefineNode> _classDefinitions = [];
+
     // private readonly Dictionary<string, IdNode?> _variables = [];
-    private readonly List<IdNode?> _variables = [];
-    
+    // private readonly List<IdNode?> _variables = [];
+
     // private bool _invertNextAssignment = false;
     // private CoolClass? _classToDefine;
 
     public override object? VisitProgram([NotNull] ProgramContext context)
     {
         ProgramNode programNode = new ProgramNode(context);
-        
-        // foreach (var classDefine in context.classDefine())
-        // {
-            // _classDefinitions.Add(VisitClassDefine(classDefine));
-        // }
-        
-        // ProgramNode programNode = new ProgramNode(context);
-        
-        programNode.ClassDefineNodes = context.classDefine().Select(x => VisitClassDefine(x) as ClassDefineNode);
 
-        // Trausis Code:
-        // FileNode theWhole = new FileNode(context);
-        // theWhole.Functions = context.functionDecl().Select(x => Visit(x) as FunctionNode).ToList();
-        // theWhole.Variables = context.varDecl().Select(x => Visit(x) as VariableNode).ToList();
+        programNode.ClassDefineNodes =
+            context.classDefine().Select(x => VisitClassDefine(x) as ClassDefineNode).ToList();
 
-        // return theWhole;
+        return programNode;
     }
-    
+
     public override object? VisitClassDefine([NotNull] ClassDefineContext context)
     {
-        foreach (var classDefineContext in context.classDefine())
-        {
-            var classDefineNode = VisitClassDefine(classDefineContext) as ClassDefineNode;
-            if (classDefineNode != null)
-            {
-                _classDefinitions.Add(classDefineNode);
-            }
-        }
+        ClassDefineNode classDefineNode = new ClassDefineNode(context);
 
-        return null;
-        
-        // var className = context.TYPE(0).GetText();
-        // var baseClassName = context.TYPE(1)?.GetText();
-        //
-        // _classToDefine = new(className, baseClassName);
-        //
-        // foreach (var feature in context.feature())
-        // {
-        //     Visit(feature);
-        // }
-        //
-        // _classDefinitions.Add(_classToDefine.Name, _classToDefine);
-        // _classToDefine = null;
-        // return null;
+        //TODO Idnode = name von Klasse überarbeiten = string
+        classDefineNode.Name = context.TYPE(0).ToString();
+        classDefineNode.FeatureNodes = context.feature().Select(x => VisitFeature(x) as FeatureNode).ToList();
+
+        return classDefineNode;
     }
-    //
-    // public override object? VisitFeature([NotNull] FeatureContext context)
-    // {
-    //     if (_classToDefine == null)
-    //         throw new Exception("Failed to add feature to class definition!");
-    //
-    //     if (context.method() != null)
-    //         _classToDefine.AddMethod(context.method().ID().GetText(), context.method());
-    //
-    //     // TODO
-    //     //if (context.property() != null)
-    //     //    _classToDefine.AddProperty(context.property().ASSIGNMENT().)
-    //
-    //     return null;
-    // }
-    //
+
+
+    public override object? VisitFeature([NotNull] FeatureContext context)
+    {
+        FeatureNode featureNode = new FeatureNode(context);
+
+        // featureNode.MethodNodes = context.method().Select(x => VisitMethod(x) as MethodNode).toList();
+        // featureNode.PropertyNodes = context.property().Select(x => VisitProperty(x) as PropertyNode).toList();
+        Console.WriteLine("in VisitFeature");
+
+        return featureNode;
+    }
+
     // public override object? VisitBlock([NotNull] BlockContext context)
     // {
     //     foreach (var expression in context.expression())

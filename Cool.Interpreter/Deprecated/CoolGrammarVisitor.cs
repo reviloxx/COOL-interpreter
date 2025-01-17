@@ -12,6 +12,19 @@ public class CoolGrammarVisitor : CoolGrammarBaseVisitor<object?>
     private bool _invertNextAssignment = false;
     private CoolClass? _classToDefine;
 
+    public override object? VisitProgram([NotNull] ProgramContext context)
+    {
+        foreach (var classDefine in context.classDefine())
+        {
+            Visit(classDefine);
+        }
+
+        var mainClass = _classDefinitions["Main"];
+        Visit(mainClass.GetMethod("main"));
+
+        return null;
+    }
+    
     public override object? VisitClassDefine([NotNull] ClassDefineContext context)
     {
         var className = context.TYPE(0).GetText();
@@ -210,18 +223,7 @@ public class CoolGrammarVisitor : CoolGrammarBaseVisitor<object?>
         return null;
     }
 
-    public override object? VisitProgram([NotNull] ProgramContext context)
-    {
-        foreach (var classDefine in context.classDefine())
-        {
-            Visit(classDefine);
-        }
-
-        var mainClass = _classDefinitions["Main"];
-        Visit(mainClass.GetMethod("main"));
-
-        return null;
-    }
+    
 
     public override object? VisitProperty([NotNull] PropertyContext context)
     {
