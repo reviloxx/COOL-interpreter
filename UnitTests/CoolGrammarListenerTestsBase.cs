@@ -18,14 +18,14 @@ public abstract class CoolGrammarListenerTestsBase
 
     protected void StartVisitor(ProgramContext context)
     {
-        CoolGrammarVisitor visitor = new();
+        CoolGrammarVisitorAstBuilder visitor = new();
         visitor.Visit(context);
     }
 
     protected void StartListener(ProgramContext context)
     {
         ParseTreeWalker walker = new();
-        CoolGrammarDebugListener listener = new();
+        CoolGrammarListener listener = new();
         walker.Walk(listener, context);
     }
 }

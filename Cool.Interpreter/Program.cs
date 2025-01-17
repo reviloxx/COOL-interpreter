@@ -18,7 +18,7 @@ StartVisitor(context);
 
 static void StartVisitor(ProgramContext context)
 {
-    CoolGrammarVisitor visitor = new();
+    CoolGrammarVisitorAstBuilder visitor = new();
     visitor.Visit(context);
 }
 
