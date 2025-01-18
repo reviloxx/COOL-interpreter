@@ -4,9 +4,12 @@ namespace Cool.Interpreter.ASTNodes;
 
 public class FeatureNode : AstNode
 {
-    public IdNode Id { get; set; }
-
+    public required IdNode FeatureName { get; set; }
     public FeatureNode(ParserRuleContext context) : base(context)
+    {
+    }
+
+    public FeatureNode(int line, int column) : base(line, column)
     {
     }
 }

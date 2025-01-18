@@ -2,18 +2,18 @@
 
 namespace Cool.Interpreter.ASTNodes;
 
-public class ClassDefineNode : AstNode, ICoolGrammarVisitor<>
+public class ClassDefineNode : AstNode
 {
-    public IdNode Name { get; set; }
-    public IdNode? BaseClassName { get; set; } // Optional
-
-    public List<FeatureNode> FeatureNodes = new();
-
-    public ClassDefineNode(ParserRuleContext context) : base(context)
-    {
-    }
-
-    public ClassDefineNode(int line, int column) : base(line, column)
-    {
-    }
+        public required IdNode ClassName { get; set; } // ClassName
+        public IdNode? BaseClassName { get; set; } // Optional: BaseClass
+    
+        public List<FeatureNode> FeatureNodes { get; set; } = new();
+    
+        public ClassDefineNode(ParserRuleContext context) : base(context)
+        {
+        }
+    
+        public ClassDefineNode(int line, int column) : base(line, column)
+        {
+        }
 }
