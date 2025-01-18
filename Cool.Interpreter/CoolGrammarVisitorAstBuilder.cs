@@ -63,14 +63,34 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
             ReturnType = new TypeNode(context, context.TYPE().GetText()) // Rückgabetyp
         };
 
-        // Parameter verarbeiten
         methodNode.Parameters = context.formal()
             .Select(param => VisitFormal(param) as ParameterNode)
             .Where(param => param != null)
             .ToList()!;
 
-        // Methoden-Body
-        methodNode.Body = Visit(context.expression()) as ExpressionNode;
+        
+        //TODO - ALLE Kontexte abarbeiten - Erstes Problem: ich komme hier mit einem methodcontext rein, das sollte nicht möglich sein?
+        methodNode.Body = context.expression() switch
+        {
+            ArithmeticContext arithmetic => VisitArithmetic(arithmetic) as ExpressionNode,
+            AssignmentContext assignment => VisitAssignment(assignment) as ExpressionNode,
+            BlockContext block => VisitBlock(block) as ExpressionNode,
+            BoolNotContext boolNot => VisitBoolNot(boolNot) as ExpressionNode,
+            BooleanContext boolean => VisitBoolean(boolean) as ExpressionNode,
+            CaseContext caseContext => VisitCase(caseContext) as ExpressionNode,
+            // ComparisonContext comparison => VisitComparison(comparison) as ExpressionNode,
+            DispatchExplicitContext dispatchExplicit => VisitDispatchExplicit(dispatchExplicit) as ExpressionNode,
+            DispatchImplicitContext dispatchImplicit => VisitDispatchImplicit(dispatchImplicit) as ExpressionNode,
+            IdContext id => VisitId(id) as ExpressionNode,
+            IfContext @if => VisitIf(@if) as ExpressionNode,
+            IntContext @int => VisitInt(@int) as ExpressionNode,
+            IsvoidContext isvoid => VisitIsvoid(isvoid) as ExpressionNode,
+            LetInContext letIn => VisitLetIn(letIn) as ExpressionNode,
+            NegativeContext negative => VisitNegative(negative) as ExpressionNode,
+            StringContext str => VisitString(str) as ExpressionNode,
+            WhileContext @while => VisitWhile(@while) as ExpressionNode,
+            _ => throw new NotSupportedException("Unknown expression type.")
+        };
 
         return methodNode;
     }
@@ -100,45 +120,36 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override object? VisitBlock([NotNull] BlockContext context)
     {
-        throw new NotImplementedException();
-
-        // foreach (var expression in context.expression())
-        // {
-        //     Visit(expression);
-        // }
-        // return null;
+        return new BlockSequenceNode(context)
+        {
+            Expressions = context.expression().Select(x => Visit(x) as ExpressionNode).ToList()
+        };
     }
-    
+
     public override object? VisitFormal([NotNull] FormalContext context)
     {
         return new ParameterNode(context)
         {
             ParameterName = new IdNode(context.ID().GetText(), context),
-            ParameterType = new TypeNode(context.TYPE().GetText(), context)
+            ParameterType = new TypeNode(context, context.TYPE().GetText())
         };
     }
 
-
-    //
-    
-
-    
-    
     public override object? VisitBoolean([NotNull] BooleanContext context)
         => context.TRUE() != null;
-    
+
     public override object? VisitBoolNot([NotNull] BoolNotContext context)
         => context;
-    
-    public override object? VisitInt([NotNull] IntContext context) 
+
+    public override object? VisitInt([NotNull] IntContext context)
         => int.Parse(context.INT().GetText());
-    
-    public override object? VisitString([NotNull] StringContext context) 
+
+    public override object? VisitString([NotNull] StringContext context)
         => context.STRING().GetText();
-    
+
     public override object? VisitArithmetic([NotNull] ArithmeticContext context)
     {
-       throw new NotImplementedException();
+        throw new NotImplementedException();
         // var left = Visit(context.expression(0))!;
         // var right = Visit(context.expression(1))!;
         //
@@ -174,7 +185,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         //
         // throw new Exception($"Type {left.GetType().Name} not supported for arithmetic expressions!");
     }
-    
+
     public override object? VisitComparisson([NotNull] ComparissonContext context)
     {
         throw new NotImplementedException();
@@ -225,7 +236,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         //
         // throw new Exception($"Type {left.GetType().Name} not supported for comparisson expressions!");
     }
-    
+
     public override object? VisitId([NotNull] IdContext context)
     {
         throw new NotImplementedException();
@@ -237,10 +248,11 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         //
         // return value;
     }
-    
+
     public override object? VisitDispatchImplicit([NotNull] DispatchImplicitContext context)
     {
-        throw new NotImplementedException();
+        Console.WriteLine("in VisitDispatchImplicit");
+        // throw new NotImplementedException();
 
         // var methodName = context.ID().GetText();
         // var args = context.expression().Select(Visit).ToList();
@@ -257,49 +269,49 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         //     Visit(expression);
         // }        
         //
-        // return null;
+        return null;
     }
-    
+
     public override object? VisitNew([NotNull] NewContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitParentheses([NotNull] ParenthesesContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitLetIn([NotNull] LetInContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitIsvoid([NotNull] IsvoidContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitWhile([NotNull] WhileContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitNegative([NotNull] NegativeContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitIf([NotNull] IfContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitCase([NotNull] CaseContext context)
     {
         throw new NotImplementedException();
     }
-    
+
     public override object? VisitDispatchExplicit([NotNull] DispatchExplicitContext context)
     {
         throw new NotImplementedException();

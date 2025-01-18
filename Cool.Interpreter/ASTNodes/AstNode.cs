@@ -1,5 +1,4 @@
 ﻿using Antlr4.Runtime;
-using Cool.Interpreter.ASTVisitor;
 using Microsoft.VisualBasic;
 
 namespace Cool.Interpreter.ASTNodes;
@@ -26,6 +25,6 @@ public abstract class AstNode
     }
 
     // internal abstract TResult Evaluate<TResult>(AstEvaluator<TResult> evaluator) where TResult : class;
-    
+
     // internal abstract void Accept(AstVisitor visitor);
 }
