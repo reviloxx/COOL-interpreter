@@ -7,17 +7,20 @@ public class BlockSequenceNode : ExpressionNode
 {
     public List<ExpressionNode?> Expressions { get; set; } = new();
 
+    public bool CreateNewScope { get; set; } = true;
+    
     public BlockSequenceNode(ParserRuleContext context) : base(context)
     {
     }
     
     public override object? Execute(RuntimeEnvironment env)
     {
-        env.PushScope(); // Create new scope for block
+        if (CreateNewScope)
+            env.PushScope();
+        
         try
         {
             object? lastResult = null;
-            // Execute each expression in sequence
             foreach (var expr in Expressions)
             {
                 if (expr != null)
@@ -25,12 +28,12 @@ public class BlockSequenceNode : ExpressionNode
                     lastResult = expr.Execute(env);
                 }
             }
-            // The value of a block is the value of its last expression
             return lastResult;
         }
         finally
         {
-            env.PopScope();
+            if (CreateNewScope)
+                env.PopScope();
         }
     }
 

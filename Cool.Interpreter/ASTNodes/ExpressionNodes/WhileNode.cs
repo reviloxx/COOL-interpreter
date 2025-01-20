@@ -13,14 +13,32 @@ public class WhileNode : ExpressionNode
 
     public override object? Execute(RuntimeEnvironment env)
     {
+        // TODO scope here?
+        if (Body is BlockSequenceNode blockNode)
+        {
+            blockNode.CreateNewScope = false;
+        }
+        
         object? result = null;
         while (true)
         {
             var conditionResult = Condition?.Execute(env);
-            if (conditionResult is bool boolResult && !boolResult)
+        
+            // Handle numeric comparisons
+            if (conditionResult is bool boolResult)
             {
-                break;
+                if (!boolResult) break;
             }
+            else if (conditionResult is int intResult)
+            {
+                if (intResult == 0) break;  // In COOL, 0 is false
+            }
+            else
+            {
+                // Handle other types or throw appropriate exception
+                throw new Exception($"Invalid condition result type: {conditionResult?.GetType()}");
+            }
+        
             result = Body?.Execute(env);
         }
         return result;
