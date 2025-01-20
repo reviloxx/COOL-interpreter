@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime;
+﻿using System.Text;
+using Antlr4.Runtime;
 
 namespace Cool.Interpreter.ASTNodes;
 
@@ -12,4 +13,22 @@ public class MethodNode : FeatureNode
     {
     }
 
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"{GetIndentation()}Method {FeatureName}(");
+        sb.Append(string.Join(", ", Parameters.Select(p => p.ToString())));
+        sb.Append($") : {ReturnType}");
+        
+        if (Body != null)
+        {
+            sb.AppendLine(" {");
+            IncreaseIndent();
+            sb.AppendLine(Body.ToString());
+            DecreaseIndent();
+            sb.Append($"{GetIndentation()}}};");
+        }
+        
+        return sb.ToString();
+    }
 }

@@ -8,7 +8,7 @@ namespace Cool.Interpreter;
 
 public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 {
-    public override object? VisitProgram([NotNull] ProgramContext context)
+    public override AstNode? VisitProgram([NotNull] ProgramContext context)
     {
         ProgramNode programNode = new ProgramNode(context);
 
@@ -18,7 +18,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return programNode;
     }
 
-    public override object? VisitClassDefine([NotNull] ClassDefineContext context)
+    public override AstNode? VisitClassDefine([NotNull] ClassDefineContext context)
     {
         var className = new IdNode(context.TYPE(0).GetText(), context);
         ClassDefineNode classDefineNode = new ClassDefineNode(context)
@@ -41,7 +41,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
     }
 
 
-    public override object? VisitFeature([NotNull] FeatureContext context)
+    public override AstNode? VisitFeature([NotNull] FeatureContext context)
     {
         if (context.method() != null)
         {
@@ -55,48 +55,49 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return null; // Unbekannter Feature-Typ
     }
 
-    public override object? VisitMethod([NotNull] MethodContext context)
+    public override AstNode? VisitMethod([NotNull] MethodContext context)
     {
-        var methodNode = new MethodNode(context)
+        var node = new MethodNode(context)
         {
             FeatureName = new IdNode(context.ID().GetText(), context), // Methodenname
             ReturnType = new TypeNode(context, context.TYPE().GetText()) // Rückgabetyp
         };
 
-        methodNode.Parameters = context.formal()
+        node.Parameters = context.formal()
             .Select(param => VisitFormal(param) as ParameterNode)
             .Where(param => param != null)
             .ToList()!;
 
+        node.Body = Visit(context.expression()) as BlockSequenceNode;
         
         //TODO - ALLE Kontexte abarbeiten - Erstes Problem: ich komme hier mit einem methodcontext rein, das sollte nicht möglich sein?
-        methodNode.Body = context.expression() switch
-        {
-            ArithmeticContext arithmetic => VisitArithmetic(arithmetic) as ExpressionNode,
-            AssignmentContext assignment => VisitAssignment(assignment) as ExpressionNode,
-            BlockContext block => VisitBlock(block) as ExpressionNode,
-            BoolNotContext boolNot => VisitBoolNot(boolNot) as ExpressionNode,
-            BooleanContext boolean => VisitBoolean(boolean) as ExpressionNode,
-            CaseContext caseContext => VisitCase(caseContext) as ExpressionNode,
-            // ComparisonContext comparison => VisitComparison(comparison) as ExpressionNode,
-            DispatchExplicitContext dispatchExplicit => VisitDispatchExplicit(dispatchExplicit) as ExpressionNode,
-            DispatchImplicitContext dispatchImplicit => VisitDispatchImplicit(dispatchImplicit) as ExpressionNode,
-            IdContext id => VisitId(id) as ExpressionNode,
-            IfContext @if => VisitIf(@if) as ExpressionNode,
-            IntContext @int => VisitInt(@int) as ExpressionNode,
-            IsvoidContext isvoid => VisitIsvoid(isvoid) as ExpressionNode,
-            LetInContext letIn => VisitLetIn(letIn) as ExpressionNode,
-            NegativeContext negative => VisitNegative(negative) as ExpressionNode,
-            StringContext str => VisitString(str) as ExpressionNode,
-            WhileContext @while => VisitWhile(@while) as ExpressionNode,
-            _ => throw new NotSupportedException("Unknown expression type.")
-        };
+        // methodNode.Body = context.expression() switch
+        // {
+        //     ArithmeticContext arithmetic => VisitArithmetic(arithmetic) as ExpressionNode,
+        //     AssignmentContext assignment => VisitAssignment(assignment) as ExpressionNode,
+        //     BlockContext block => VisitBlock(block) as ExpressionNode,
+        //     BoolNotContext boolNot => VisitBoolNot(boolNot) as ExpressionNode,
+        //     BooleanContext boolean => VisitBoolean(boolean) as ExpressionNode,
+        //     CaseContext caseContext => VisitCase(caseContext) as ExpressionNode,
+        //     // ComparisonContext comparison => VisitComparison(comparison) as ExpressionNode,
+        //     DispatchExplicitContext dispatchExplicit => VisitDispatchExplicit(dispatchExplicit) as ExpressionNode,
+        //     DispatchImplicitContext dispatchImplicit => VisitDispatchImplicit(dispatchImplicit) as ExpressionNode,
+        //     IdContext id => VisitId(id) as ExpressionNode,
+        //     IfContext @if => VisitIf(@if) as ExpressionNode,
+        //     IntContext @int => VisitInt(@int) as ExpressionNode,
+        //     IsvoidContext isvoid => VisitIsvoid(isvoid) as ExpressionNode,
+        //     LetInContext letIn => VisitLetIn(letIn) as ExpressionNode,
+        //     NegativeContext negative => VisitNegative(negative) as ExpressionNode,
+        //     StringContext str => VisitString(str) as ExpressionNode,
+        //     WhileContext @while => VisitWhile(@while) as ExpressionNode,
+        //     _ => throw new NotSupportedException("Unknown expression type.")
+        // };
 
-        return methodNode;
+        return node;
     }
 
 
-    public override object? VisitProperty([NotNull] PropertyContext context)
+    public override AstNode? VisitProperty([NotNull] PropertyContext context)
     {
         var formal = context.formal();
 
@@ -109,8 +110,15 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         };
     }
 
-    public override object? VisitAssignment([NotNull] AssignmentContext context)
+    public override AstNode? VisitAssignment([NotNull] AssignmentContext context)
     {
+        AssignmentNode node = new AssignmentNode(context)
+        {
+            Target = new IdNode(context.ID().GetText(), context)
+        };
+        
+        AstNode value_node = Visit(context.expression()) as ExpressionNode;
+        
         return new AssignmentNode(context)
         {
             Target = new IdNode(context.ID().GetText(), context), // Zielvariable
@@ -118,7 +126,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         };
     }
 
-    public override object? VisitBlock([NotNull] BlockContext context)
+    public override AstNode? VisitBlock([NotNull] BlockContext context)
     {
         return new BlockSequenceNode(context)
         {
@@ -126,7 +134,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         };
     }
 
-    public override object? VisitFormal([NotNull] FormalContext context)
+    public override AstNode? VisitFormal([NotNull] FormalContext context)
     {
         return new ParameterNode(context)
         {
@@ -135,21 +143,82 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         };
     }
 
-    public override object? VisitBoolean([NotNull] BooleanContext context)
-        => context.TRUE() != null;
-
-    public override object? VisitBoolNot([NotNull] BoolNotContext context)
-        => context;
-
-    public override object? VisitInt([NotNull] IntContext context)
-        => int.Parse(context.INT().GetText());
-
-    public override object? VisitString([NotNull] StringContext context)
-        => context.STRING().GetText();
-
-    public override object? VisitArithmetic([NotNull] ArithmeticContext context)
+    public override AstNode? VisitBoolean([NotNull] BooleanContext context)
     {
-        throw new NotImplementedException();
+        return new BoolNode(context)
+        {
+            Value = context.value.Type == CoolGrammarLexer.TRUE
+        };
+    }
+
+    public override AstNode? VisitBoolNot([NotNull] BoolNotContext context)
+    {
+        BoolNotNode node = new BoolNotNode(context)
+        {
+            Operand = Visit(context.expression()) as ExpressionNode
+        };
+        return node;
+    }
+        
+    public override AstNode? VisitInt([NotNull] IntContext context)
+    {
+        return new IntNode(context)
+        {
+            Value = int.Parse(context.INT().GetText())
+        };
+    }
+
+    public override AstNode? VisitString([NotNull] StringContext context)
+    {
+        return new StringNode(context)
+        {
+            Value = context.STRING().GetText().Trim('"') // Remove the surrounding quotes from the parsed string
+        };
+    }
+    
+
+    public override AstNode? VisitArithmetic([NotNull] ArithmeticContext context)
+    {
+       
+        BinaryOperationNode node;
+        switch (context.op.Text)
+        {
+            case "+":
+                node = new AddNode(context);
+                break;
+            case "-":
+                node = new SubNode(context);
+                break;
+            case "*":
+                node = new MulNode(context);
+                break;
+            case "/":
+                node = new DivNode(context);
+                break;
+            default:
+                throw new NotSupportedException();
+        }
+        
+        var leftExpr = Visit(context.expression(0));
+        var rightExpr = Visit(context.expression(1));
+
+        // Add debug checks
+        if (leftExpr == null)
+            throw new InvalidOperationException($"Left expression visit returned null for {context.expression(0).GetText()}");
+    
+        if (rightExpr == null)
+            throw new InvalidOperationException($"Right expression visit returned null for {context.expression(1).GetText()}");
+
+        node.LeftOperand = leftExpr as ExpressionNode 
+                           ?? throw new InvalidOperationException($"Left expression is not an ExpressionNode. It is: {leftExpr.GetType()}");
+        node.RightOperand = rightExpr as ExpressionNode 
+                            ?? throw new InvalidOperationException($"Right expression is not an ExpressionNode. It is: {rightExpr.GetType()}");
+
+        
+
+        return node;
+        
+     
         // var left = Visit(context.expression(0))!;
         // var right = Visit(context.expression(1))!;
         //
@@ -186,9 +255,33 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         // throw new Exception($"Type {left.GetType().Name} not supported for arithmetic expressions!");
     }
 
-    public override object? VisitComparisson([NotNull] ComparissonContext context)
+    public override AstNode? VisitComparisson([NotNull] ComparissonContext context)
     {
-        throw new NotImplementedException();
+
+        BinaryOperationNode node;
+        
+        switch (context.op.Text)
+        {
+            case "=":
+                node = new EqualNode(context);
+                break;
+            case "<":
+                node = new SmallerNode(context);
+                break;
+            case "<=":
+                node = new SmallerEqualNode(context);
+                break;
+            default:
+                throw new NotSupportedException();
+        }
+        
+        
+
+        node.LeftOperand = Visit(context.expression(0)) as ExpressionNode;
+        node.RightOperand = Visit(context.expression(1)) as ExpressionNode;
+        return node;
+        
+        // throw new NotImplementedException();
 
         // var left = Visit(context.expression(0))!;
         // var right = Visit(context.expression(1))!;
@@ -237,9 +330,10 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         // throw new Exception($"Type {left.GetType().Name} not supported for comparisson expressions!");
     }
 
-    public override object? VisitId([NotNull] IdContext context)
+    public override AstNode? VisitId([NotNull] IdContext context)
     {
-        throw new NotImplementedException();
+        return new IdNode(context.ID().GetText(), context);
+        // throw new NotImplementedException();
 
         // var varName = context.ID().GetText();
         //
@@ -249,71 +343,86 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         // return value;
     }
 
-    public override object? VisitDispatchImplicit([NotNull] DispatchImplicitContext context)
+    public override AstNode? VisitDispatchImplicit([NotNull] DispatchImplicitContext context)
     {
-        Console.WriteLine("in VisitDispatchImplicit");
-        // throw new NotImplementedException();
+        var node = new DispatchNode(context)
+        {
+            MethodName = new IdNode(context.ID().GetText(), context)
+        };
 
-        // var methodName = context.ID().GetText();
-        // var args = context.expression().Select(Visit).ToList();
-        //
-        // if (methodName == "out_string")
-        // {
-        //     Console.WriteLine(args[0]?.ToString());
-        //     return null;
-        // }
-        //
-        // foreach (var expression in context.expression())
-        // {
-        //     // TODO: how to call other methods?
-        //     Visit(expression);
-        // }        
-        //
-        return null;
+        // Visit all arguments
+        node.Arguments = context.expression()
+            .Select(expr => Visit(expr) as ExpressionNode)
+            .Where(expr => expr != null)
+            .ToList()!;
+
+        return node;
     }
 
-    public override object? VisitNew([NotNull] NewContext context)
+    public override AstNode? VisitDispatchExplicit([NotNull] DispatchExplicitContext context)
     {
-        throw new NotImplementedException();
-    }
+        var node = new DispatchNode(context)
+        {
+            Object = Visit(context.expression(0)) as ExpressionNode,
+            MethodName = new IdNode(context.ID().GetText(), context)
+        };
 
-    public override object? VisitParentheses([NotNull] ParenthesesContext context)
-    {
-        throw new NotImplementedException();
-    }
+        // Handle @TYPE if present
+        if (context.TYPE() != null)
+        {
+            node.StaticType = new TypeNode(context, context.TYPE().GetText());
+        }
 
-    public override object? VisitLetIn([NotNull] LetInContext context)
-    {
-        throw new NotImplementedException();
-    }
+        // Visit all arguments (skip first expression as it's the object)
+        node.Arguments = context.expression()
+            .Skip(1)  // Skip the first expression (object)
+            .Select(expr => Visit(expr) as ExpressionNode)
+            .Where(expr => expr != null)
+            .ToList()!;
 
-    public override object? VisitIsvoid([NotNull] IsvoidContext context)
-    {
-        throw new NotImplementedException();
+        return node;
     }
+    
 
-    public override object? VisitWhile([NotNull] WhileContext context)
+    public override AstNode? VisitNew([NotNull] NewContext context)
     {
         throw new NotImplementedException();
     }
 
-    public override object? VisitNegative([NotNull] NegativeContext context)
+    public override AstNode? VisitParentheses([NotNull] ParenthesesContext context)
     {
         throw new NotImplementedException();
     }
 
-    public override object? VisitIf([NotNull] IfContext context)
+    public override AstNode? VisitLetIn([NotNull] LetInContext context)
     {
         throw new NotImplementedException();
     }
 
-    public override object? VisitCase([NotNull] CaseContext context)
+    public override AstNode? VisitIsvoid([NotNull] IsvoidContext context)
     {
         throw new NotImplementedException();
     }
 
-    public override object? VisitDispatchExplicit([NotNull] DispatchExplicitContext context)
+    public override AstNode? VisitWhile([NotNull] WhileContext context)
     {
         throw new NotImplementedException();
     }
+
+    public override AstNode? VisitNegative([NotNull] NegativeContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override AstNode? VisitIf([NotNull] IfContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override AstNode? VisitCase([NotNull] CaseContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+  
 }

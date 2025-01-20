@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime;
+﻿using System.Text;
+using Antlr4.Runtime;
 
 namespace Cool.Interpreter.ASTNodes;
 
@@ -11,5 +12,10 @@ public class FeatureNode : AstNode
 
     public FeatureNode(int line, int column) : base(line, column)
     {
+    }
+    
+    public override void Execute()
+    {
+        throw new NotImplementedException();
     }
 }

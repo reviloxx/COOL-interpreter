@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime;
+﻿using System.Text;
+using Antlr4.Runtime;
 
 namespace Cool.Interpreter.ASTNodes;
 
@@ -9,5 +10,22 @@ public class AssignmentNode : ExpressionNode
 
     public AssignmentNode(ParserRuleContext context) : base(context)
     {
+    }
+    
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"{GetIndentation()}Assignment");
+        IncreaseIndent();
+        sb.AppendLine($"{GetIndentation()}Target: {Target}");
+        if (Value != null)
+        {
+            sb.AppendLine($"{GetIndentation()}Value:");
+            IncreaseIndent();
+            sb.AppendLine(Value.ToString());
+            DecreaseIndent();
+        }
+        DecreaseIndent();
+        return sb.ToString();
     }
 }

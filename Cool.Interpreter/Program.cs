@@ -3,6 +3,7 @@ using Antlr4.Runtime;
 using Cool.Interpreter;
 using System.Drawing.Text;
 using static CoolGrammarParser;
+using Cool.Interpreter.ASTNodes;
 
 var inputFile = "helloworld.cl";
 var streamReader = new StreamReader(inputFile);
@@ -13,18 +14,11 @@ CommonTokenStream tokens = new(lexer);
 CoolGrammarParser parser = new(tokens);
 var context = parser.program();
 
-StartVisitor(context);
+CoolGrammarVisitorAstBuilder builder = new();
 
 
-static void StartVisitor(ProgramContext context)
-{
-    CoolGrammarVisitorAstBuilder visitor = new();
-    visitor.Visit(context);
-}
+AstNode root_node = (AstNode)builder.Visit(context)!;
+Console.WriteLine(root_node);
 
-static void StartListener(ProgramContext context)
-{
-    ParseTreeWalker walker = new();
-    CoolGrammarListener listener = new();
-    walker.Walk(listener, context);
-}
+root_node.Execute();
+

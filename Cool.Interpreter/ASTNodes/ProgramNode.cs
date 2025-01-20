@@ -1,4 +1,5 @@
-﻿using Antlr4.Runtime;
+﻿using System.Text;
+using Antlr4.Runtime;
 
 namespace Cool.Interpreter.ASTNodes;
 
@@ -14,41 +15,40 @@ public class ProgramNode : AstNode
     // {
         // visitor.Visit(this);
     // }
+
+    public override void Execute()
+    {
+        // Find the main Class
+        var mainClass = ClassDefineNodes
+            .FirstOrDefault(c => c?.ClassName.Name.Equals("Main", StringComparison.OrdinalIgnoreCase) == true);
+
+        if (mainClass != null)
+        {
+            mainClass.Execute();
+        }
+        else
+        {
+            throw new Exception("No Main class found in the program");
+        }
+    }
     
-    // public override string ToString()
-    // {
-    //     StringBuilder sb = new StringBuilder();
-    //
-    //     int saveIdent = ident;
-    //     string identString = emptyString.Substring(emptyString.Length - ident);
-    //
-    //     sb.Append(identString);
-    //     sb.Append("Function definition: function name ");
-    //     sb.Append(Id.ToString());
-    //     sb.Append(" returns type ");
-    //     sb.Append(TypeReturn.ToString());
-    //     sb.Append("\n");
-    //
-    //     sb.Append(identString);
-    //     sb.Append("  (");
-    //     string sep = "";
-    //     foreach (var arg in Arguments)
-    //     {
-    //         sb.Append(sep);
-    //         sb.Append(arg.Id.ToString());
-    //         sb.Append(":");
-    //         sb.Append(arg.Type.ToString());
-    //         sep = ", ";
-    //     }
-    //     sb.Append(")\n");
-    //     ident += 2;
-    //
-    //     sb.Append(Body.ToString());
-    //
-    //     sb.Append("\n");
-    //
-    //     ident = saveIdent;
-    //
-    //     return sb.ToString();
-    // }
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"{GetIndentation()}Program");
+        
+        IncreaseIndent();
+        foreach (var classNode in ClassDefineNodes)
+        {
+            if (classNode != null)
+            {
+                sb.AppendLine(classNode.ToString());
+            }
+        }
+        DecreaseIndent();
+        
+        return sb.ToString();
+    }
+    
 }
+

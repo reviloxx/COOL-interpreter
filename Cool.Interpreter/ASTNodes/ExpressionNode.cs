@@ -9,4 +9,9 @@ public class ExpressionNode : AstNode
     public ExpressionNode(ParserRuleContext context) : base(context)
     {
     }
+    public override void Execute()
+    {
+        throw new NotImplementedException();
+    }
+    
 }
