@@ -23,7 +23,7 @@ public class IOClassNode : ClassDefineNode
             {
                 if (args.Count > 0 && args[0] != null)
                 {
-                    Console.Write(args[0].ToString());
+                    Console.WriteLine(args[0].ToString());
                 }
                 return env.LookupVariable("self");
             }
@@ -45,7 +45,7 @@ public class IOClassNode : ClassDefineNode
             {
                 if (args.Count > 0 && args[0] != null)
                 {
-                    Console.Write(args[0].ToString());
+                    Console.WriteLine(args[0].ToString());
                 }
                 return env.LookupVariable("self");
             }

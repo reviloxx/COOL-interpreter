@@ -18,6 +18,13 @@ public class ProgramNode : AstNode
 
     public override object? Execute(RuntimeEnvironment env)
     {
+        
+        // Make sure to register all classes in the runtime env
+        foreach (var classDefineNode in ClassDefineNodes)
+        {
+          env.RegisterClass(classDefineNode);   
+        } 
+        
         // Find the main Class
         var mainClass = ClassDefineNodes
             .FirstOrDefault(c => c?.ClassName.Name.Equals("Main", StringComparison.OrdinalIgnoreCase) == true);

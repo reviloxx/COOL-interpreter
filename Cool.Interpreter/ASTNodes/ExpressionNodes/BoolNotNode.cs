@@ -37,6 +37,15 @@ public class BoolNotNode : UnaryNode
     
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        // Execute the operand
+        object? operandValue = Operand?.Execute(env);
+    
+        // Check if operand is a boolean
+        if (operandValue is bool boolValue)
+        {
+            return !boolValue;  // Return the logical NOT
+        }
+    
+        throw new Exception($"Type error: NOT operation expects a Bool but got {operandValue?.GetType().Name} at line {Line}, column {Column}");
     }
 }

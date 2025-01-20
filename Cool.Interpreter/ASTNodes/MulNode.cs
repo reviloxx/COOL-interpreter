@@ -13,7 +13,18 @@ public class MulNode : BinaryOperationNode
     
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        // Execute both operands
+        object? leftValue = LeftOperand?.Execute(env);
+        object? rightValue = RightOperand?.Execute(env);
+    
+        // Check if both operands are integers
+        if (leftValue is int leftInt && rightValue is int rightInt)
+        {
+            return leftInt * rightInt;
+        }
+        
+    
+        throw new Exception($"Type error: '*' operation expects two Ints but got {leftValue?.GetType().Name} and {rightValue?.GetType().Name} at line {Line}, column {Column}");
     }
     
     // public override void Accept(IVisitor visitor)

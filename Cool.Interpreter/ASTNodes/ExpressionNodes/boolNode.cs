@@ -20,6 +20,6 @@ public class BoolNode : ExpressionNode
     
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        return Value;
     }
 }

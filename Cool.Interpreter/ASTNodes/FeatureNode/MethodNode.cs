@@ -19,7 +19,8 @@ public class MethodNode : FeatureNode
         try
         {
             // Execute method body
-            Body?.Execute(env);
+            var result = Body?.Execute(env);
+            return result;
         }
         finally
         {

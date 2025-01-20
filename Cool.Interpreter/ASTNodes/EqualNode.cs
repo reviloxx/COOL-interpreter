@@ -9,6 +9,14 @@ public class EqualNode : BinaryOperationNode
    
    public override object? Execute(RuntimeEnvironment env)
    {
-      throw new NotImplementedException();
+         // Execute the operand
+         object? LeftValue = LeftOperand?.Execute(env);
+         object? RightValue = RightOperand?.Execute(env);
+   
+         // TODO check for same type needed?
+         
+         // Check if operand is a boolean
+         return LeftValue == RightValue;
+      
    }
 }

@@ -20,6 +20,6 @@ public class IntNode : ExpressionNode
     
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        return Value;
     }
 }

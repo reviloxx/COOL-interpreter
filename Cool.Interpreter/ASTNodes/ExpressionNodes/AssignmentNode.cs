@@ -14,7 +14,14 @@ public class AssignmentNode : ExpressionNode
    
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        // Evaluate the right-hand side expression
+        object? valueToAssign = Value?.Execute(env);
+    
+        // Store the value in the current scope
+        env.DefineVariable(Target.Name, valueToAssign);
+    
+        // In COOL, assignments return the assigned value
+        return valueToAssign;
     }
     
     public override string ToString()

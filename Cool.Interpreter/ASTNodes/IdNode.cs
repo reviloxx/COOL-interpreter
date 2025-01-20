@@ -18,7 +18,15 @@ public class IdNode : ExpressionNode
         
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        // Look up the variable in the current environment
+        var value = env.LookupVariable(Name);
+        
+        if (value == null)
+        {
+            throw new Exception($"Variable '{Name}' not found at line {Line}, column {Column}");
+        }
+        
+        return value;
     }
     
 }

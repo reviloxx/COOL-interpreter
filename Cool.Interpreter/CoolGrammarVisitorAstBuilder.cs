@@ -390,18 +390,42 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override AstNode? VisitNew([NotNull] NewContext context)
     {
-        throw new NotImplementedException();
+        return new NewNode(context)
+        {
+            TypeName = new IdNode(context.TYPE().GetText(), context)
+        };
     }
 
     public override AstNode? VisitParentheses([NotNull] ParenthesesContext context)
     {
-        throw new NotImplementedException();
+        return new ParenthesesNode(context)
+        {
+            Expression = Visit(context.expression()) as ExpressionNode
+        };
     }
 
     public override AstNode? VisitLetIn([NotNull] LetInContext context)
     {
-        throw new NotImplementedException();
+        // Create a LetInNode to represent the let-in expression
+        LetInNode letInNode = new LetInNode(context);
+
+        // Process each property in the let declaration
+        foreach (var propertyContext in context.property())
+        {
+            var propertyNode = VisitProperty(propertyContext) as PropertyNode;
+            if (propertyNode != null)
+            {
+                letInNode.Declarations.Add(propertyNode);
+            }
+        }
+
+        // Process the body expression
+        letInNode.Body = Visit(context.expression()) as ExpressionNode;
+        
+
+        return letInNode;
     }
+
 
     public override AstNode? VisitIsvoid([NotNull] IsvoidContext context)
     {
@@ -410,17 +434,29 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override AstNode? VisitWhile([NotNull] WhileContext context)
     {
-        throw new NotImplementedException();
+        return new WhileNode(context)
+        {
+            Condition = Visit(context.expression(0)) as ExpressionNode,
+            Body = Visit(context.expression(1)) as ExpressionNode
+        };
     }
 
     public override AstNode? VisitNegative([NotNull] NegativeContext context)
     {
-        throw new NotImplementedException();
+        return new NegativeNode(context)
+        {
+            Expression = Visit(context.expression()) as ExpressionNode
+        };
     }
 
     public override AstNode? VisitIf([NotNull] IfContext context)
     {
-        throw new NotImplementedException();
+        return new IfNode(context)
+        {
+            Condition = Visit(context.expression(0)) as ExpressionNode,
+            ThenBranch = Visit(context.expression(1)) as ExpressionNode,
+            ElseBranch = Visit(context.expression(2)) as ExpressionNode
+        };
     }
 
     public override AstNode? VisitCase([NotNull] CaseContext context)
