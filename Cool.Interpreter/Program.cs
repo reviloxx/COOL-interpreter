@@ -20,5 +20,6 @@ CoolGrammarVisitorAstBuilder builder = new();
 AstNode root_node = (AstNode)builder.Visit(context)!;
 Console.WriteLine(root_node);
 
-root_node.Execute();
+RuntimeEnvironment env = new RuntimeEnvironment();
+root_node.Execute(env);
 

@@ -37,7 +37,7 @@ public class TypeNode : AstNode
             ValueType = TypeEnum.tVoid;
     }
 
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();
     }

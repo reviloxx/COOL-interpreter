@@ -17,4 +17,9 @@ public class BoolNode : ExpressionNode
         sb.AppendLine($"{GetIndentation()}Boolean: {Value}");
         return sb.ToString();
     }
+    
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        throw new NotImplementedException();
+    }
 }

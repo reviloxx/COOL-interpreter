@@ -16,7 +16,7 @@ public class IdNode : ExpressionNode
         return $"{GetIndentation()}Identifier: {Name}";
     }
         
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();
     }

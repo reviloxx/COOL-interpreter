@@ -11,6 +11,28 @@ public class BlockSequenceNode : ExpressionNode
     {
     }
     
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        env.PushScope(); // Create new scope for block
+        try
+        {
+            object? lastResult = null;
+            // Execute each expression in sequence
+            foreach (var expr in Expressions)
+            {
+                if (expr != null)
+                {
+                    lastResult = expr.Execute(env);
+                }
+            }
+            // The value of a block is the value of its last expression
+            return lastResult;
+        }
+        finally
+        {
+            env.PopScope();
+        }
+    }
 
     public override string ToString()
     {

@@ -11,10 +11,19 @@ public abstract class AstNode
 
     public Dictionary<string, dynamic> Attributes { get; }
 
-    public AstNode(ParserRuleContext context)
+    public AstNode(ParserRuleContext? context)
     {
-        Line = context.Start.Line;
-        Column = context.Start.Column + 1;
+        if (context != null)
+        {
+            Line = context.Start.Line;
+            Column = context.Start.Column + 1;
+        }
+        else
+        {
+            // For built-in nodes or nodes without context
+            Line = 0;
+            Column = 0;
+        }
         Attributes = new Dictionary<string, dynamic>();
     }
 
@@ -44,5 +53,6 @@ public abstract class AstNode
     
     // internal abstract TResult Evaluate<TResult>(AstEvaluator<TResult> evaluator) where TResult : class;
 
-    public abstract void Execute();
+    // public abstract void Execute();
+    public abstract object? Execute(RuntimeEnvironment env);
 }

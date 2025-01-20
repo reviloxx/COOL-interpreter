@@ -39,7 +39,7 @@ public class AddNode : BinaryOperationNode
     //     return sb.ToString();
     // }
     
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();
     }

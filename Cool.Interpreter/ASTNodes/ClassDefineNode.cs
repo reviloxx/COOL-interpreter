@@ -1,22 +1,40 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using Antlr4.Runtime;
 
 namespace Cool.Interpreter.ASTNodes;
+
 
 public class ClassDefineNode : AstNode
 {
         public required IdNode ClassName { get; set; } // ClassName
         public IdNode? BaseClassName { get; set; } // Optional: BaseClass
     
-        public List<FeatureNode> FeatureNodes { get; set; } = new();
-    
+        private Dictionary<string, MethodNode> Methods { get; } = new();
+        private Dictionary<string, PropertyNode> Properties { get; } = new();
+
         public ClassDefineNode(ParserRuleContext context) : base(context)
         {
+                
         }
-    
-        public ClassDefineNode(int line, int column) : base(line, column)
+        
+        public void AddFeature(FeatureNode feature)
         {
+                if (feature is MethodNode method)
+                {
+                        Methods[method.FeatureName.Name.ToUpperInvariant()] = method;
+                }
+                else if (feature is PropertyNode property)
+                {
+                        Properties[property.FeatureName.Name.ToUpperInvariant()] = property;
+                }
         }
+        
+        public MethodNode? GetMethod(string name)
+        {
+                return Methods.TryGetValue(name.ToUpperInvariant(), out var method) ? method : null;
+        }
+        
         
         public override string ToString()
         {
@@ -30,17 +48,35 @@ public class ClassDefineNode : AstNode
                 sb.AppendLine();
         
                 IncreaseIndent();
-                foreach (var feature in FeatureNodes)
+                foreach (var method in Methods)
                 {
-                        sb.AppendLine(feature.ToString());
+                        sb.AppendLine(method.ToString());
                 }
+                foreach (var property in Properties)
+                {
+                        sb.AppendLine(property.ToString());
+                }
+                
                 DecreaseIndent();
         
                 return sb.ToString();
         }
         
-        public override void Execute()
+        public override object? Execute(RuntimeEnvironment env)
         {
-                throw new NotImplementedException();
+                // Find and execute the main method if this is the Main class
+                if (ClassName.Name.Equals("Main", StringComparison.OrdinalIgnoreCase))
+                {
+                        var mainMethod = GetMethod("main");
+                        if (mainMethod == null)
+                                throw new Exception("No main method found in Main class");
+                
+                        env.PushScope(); // Create scope for main method
+                        env.DefineVariable("self", this);
+                        mainMethod.Execute(env);
+                        env.PopScope();
+                }
+
+                return null;
         }
 }

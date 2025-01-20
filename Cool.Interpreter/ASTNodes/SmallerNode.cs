@@ -8,7 +8,7 @@ public class SmallerNode : BinaryOperationNode
     
     public SmallerNode(ParserRuleContext context):base(context){}
     
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();
     }

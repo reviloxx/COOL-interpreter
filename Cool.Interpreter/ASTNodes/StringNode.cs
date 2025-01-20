@@ -11,6 +11,11 @@ public class StringNode : ExpressionNode
     {
     }
 
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        return Value;
+    }
+    
     public override string ToString()
     {
         var sb = new StringBuilder();

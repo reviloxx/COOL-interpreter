@@ -11,6 +11,11 @@ public class AssignmentNode : ExpressionNode
     public AssignmentNode(ParserRuleContext context) : base(context)
     {
     }
+   
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        throw new NotImplementedException();
+    }
     
     public override string ToString()
     {

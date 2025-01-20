@@ -17,4 +17,9 @@ public class IntNode : ExpressionNode
         sb.AppendLine($"{GetIndentation()}Integer: {Value}");
         return sb.ToString();
     }
+    
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        throw new NotImplementedException();
+    }
 }

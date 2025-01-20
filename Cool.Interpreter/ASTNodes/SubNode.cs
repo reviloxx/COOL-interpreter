@@ -10,7 +10,7 @@ public class SubNode : BinaryOperationNode
     {
     }
 
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();
     }

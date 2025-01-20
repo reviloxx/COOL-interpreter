@@ -14,7 +14,7 @@ public class ParameterNode : AstNode
         return $"{ParameterName} : {ParameterType}";
     }
     
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();
     }

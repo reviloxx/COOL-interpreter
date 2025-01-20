@@ -16,7 +16,7 @@ public class ProgramNode : AstNode
         // visitor.Visit(this);
     // }
 
-    public override void Execute()
+    public override object? Execute(RuntimeEnvironment env)
     {
         // Find the main Class
         var mainClass = ClassDefineNodes
@@ -24,12 +24,14 @@ public class ProgramNode : AstNode
 
         if (mainClass != null)
         {
-            mainClass.Execute();
+            mainClass.Execute(env);
         }
         else
         {
             throw new Exception("No Main class found in the program");
         }
+
+        return null;
     }
     
     public override string ToString()

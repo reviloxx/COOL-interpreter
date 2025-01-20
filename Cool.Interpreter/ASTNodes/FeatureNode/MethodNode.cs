@@ -7,12 +7,29 @@ public class MethodNode : FeatureNode
 {
     public List<ParameterNode> Parameters { get; set; } = new();
     public TypeNode ReturnType { get; set; }
-    public ExpressionNode? Body { get; set; }
+    public BlockSequenceNode? Body { get; set; }
 
     public MethodNode(ParserRuleContext context) : base(context)
     {
     }
 
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        env.PushScope(); // Create new scope for method execution
+        try
+        {
+            // Execute method body
+            Body?.Execute(env);
+        }
+        finally
+        {
+            env.PopScope();
+        }
+        
+        return null;
+    }
+    
+    
     public override string ToString()
     {
         var sb = new StringBuilder();

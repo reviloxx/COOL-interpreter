@@ -31,11 +31,15 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
             classDefineNode.BaseClassName = new IdNode(context.TYPE(1).GetText(), context);
         }
 
-        // Features (Methoden, Properties) verarbeiten
-        classDefineNode.FeatureNodes = context.feature()
-            .Select(VisitFeature)
-            .OfType<FeatureNode>() // Nur gültige FeatureNodes behalten
-            .ToList();
+        // Process each feature and add it to the appropriate collection
+        foreach (var featureContext in context.feature())
+        {
+            var feature = VisitFeature(featureContext) as FeatureNode;
+            if (feature != null)
+            {
+                classDefineNode.AddFeature(feature);
+            }
+        }
 
         return classDefineNode;
     }
