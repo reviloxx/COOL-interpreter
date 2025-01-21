@@ -37,6 +37,11 @@ public class TypeNode : AstNode
             ValueType = TypeEnum.tVoid;
     }
 
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        throw new NotImplementedException();
+    }
+    
     public override string ToString()
     {
         return TypeName + " (" + ValueType.ToString() + ")";

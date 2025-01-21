@@ -8,4 +8,14 @@ public class ParameterNode : AstNode
     public required TypeNode ParameterType { get; set; }
 
     public ParameterNode(ParserRuleContext context) : base(context) { }
+    
+    public override string ToString()
+    {
+        return $"{ParameterName} : {ParameterType}";
+    }
+    
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        throw new NotImplementedException();
+    }
 }
