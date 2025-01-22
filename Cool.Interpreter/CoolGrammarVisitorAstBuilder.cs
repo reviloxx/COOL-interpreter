@@ -89,6 +89,11 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         var targetName = context.ID().GetText();
         var value = Visit(context.expression()) as ExpressionNode;
 
+        if (targetName.ToString().Equals("isPrime"))
+        {
+            Console.WriteLine("isPrime Value: " + value);
+        }
+        
         return new AssignmentNode(context, targetName, value);
     }
 
@@ -128,10 +133,11 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         
     public override AstNode? VisitInt([NotNull] IntContext context)
     {
-        return new IntNode(context)
+        var node = new IntNode(context)
         {
             Value = int.Parse(context.INT().GetText())
         };
+        return node;
     }
 
     public override AstNode? VisitString([NotNull] StringContext context)
@@ -168,13 +174,14 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         if (Visit(context.expression(1)) is not ExpressionNode rightOperand)
             throw new InvalidOperationException($"Right expression visit returned null for {context.expression(1).GetText()}");
 
-        return context.op.Text switch
+        BinaryOperationNode node = context.op.Text switch
         {
             "=" => new EqualNode(context, leftOperand, rightOperand),
             "<" => new SmallerNode(context, leftOperand, rightOperand),
             "<=" => new SmallerEqualNode(context, leftOperand, rightOperand),
             _ => throw new NotSupportedException(),
         };
+        return node;
     }
 
     public override AstNode? VisitId([NotNull] IdContext context)

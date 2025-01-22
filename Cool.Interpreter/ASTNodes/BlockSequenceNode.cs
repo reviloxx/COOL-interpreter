@@ -11,11 +11,11 @@ public class BlockSequenceNode(ParserRuleContext? context) : ExpressionNode(cont
 
     public override object? Execute(RuntimeEnvironment env)
     {
-        if (CreateNewScope)
-            env.PushScope();
+        // if (CreateNewScope)
+            // env.PushScope();
         
-        try
-        {
+        // try
+        // {
             object? lastResult = null;
             foreach (var expr in Expressions)
             {
@@ -25,12 +25,12 @@ public class BlockSequenceNode(ParserRuleContext? context) : ExpressionNode(cont
                 }
             }
             return lastResult;
-        }
-        finally
-        {
-            if (CreateNewScope)
-                env.PopScope();
-        }
+        // }
+        // finally
+        // {
+            // if (CreateNewScope)
+                // env.PopScope();
+        // }
     }
 
     public override string ToString()
