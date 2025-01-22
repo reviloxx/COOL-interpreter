@@ -7,36 +7,36 @@ class Main inherits IO {
                 }
             else
                {
-                   i <- 2;
+                   j <- 2;
                    result <- true;
                    
-                   out_string("Testing n: ");
-                   out_int(n);
+                   out_string(" ----------------- Testing n: ");
+                   out_intln(n);
                    
-                   while i < n loop
+                   while j < n loop
                        {
-                           out_string("Testing divisor i: ");
-                           out_int(i);
-                           out_string(" modulo result: ");
-                           out_int(math.modulo(n, i));
+                           out_string("Testing divisor j: ");
+                           out_intln(j);
+                           out_string("modulo result: ");
+                           out_intln(math.modulo(n, j));
                            
-                           if math.modulo(n, i) = 0 then
+                           if math.modulo(n, j) = 0 then
                                {
-                                   out_string(" Found divisor! Setting result to false");
+                                   out_stringln("Found divisor! Setting result to false");
                                    result <- false;
                                }
                            else 
                                {
                                    result;
                                };
-                           i <- i + 1;
+                           j <- j + 1;
                        }
                    pool;
                    
-                   out_string(" Final result for n: ");
+                   out_string("Final result for n: ");
                    out_int(n);
                    out_string(" is: ");
-                   if result then out_string("true") else out_string("false");
+                   if result then out_stringln("true") else out_stringln("false");
                    
                    result;
                }
@@ -47,11 +47,18 @@ class Main inherits IO {
         {
             math <- new Math;
             i <- 2;
-            while i < 20 loop 
+            countUntil <- 10
+            
+            -- daweil auf 10 damit nich so viel unnötiger code
+            out_string("We count until: ")
+            out_intln(countUntil)
+            
+            while i < countUntil loop 
                 {
                     if is_prime(i, math) then
                         {
-                            out_int(i);
+                            out_string("is_prime = true for: ")
+                            out_intln(i);
                         }
                     else
                         {
@@ -61,7 +68,7 @@ class Main inherits IO {
                 }
             pool;
             
-            out_string("Bye, World!");
+            out_stringln("Bye, World!");
             self;
         }
     };
@@ -72,7 +79,7 @@ class Math {
         {
             if b = 0 then
                 {
-                    out_string("Error: Division by zero in modulo operation.");
+                    out_stringln("Error: Division by zero in modulo operation.");
                     0;
                 }
             else
