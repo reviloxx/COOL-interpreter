@@ -8,10 +8,10 @@ public class WhileNode(ParserRuleContext context) : ExpressionNode(context)
     public override object? Execute(RuntimeEnvironment env)
     {
         // TODO scope here?
-        if (Body is BlockSequenceNode blockNode)
-        {
-            blockNode.CreateNewScope = false;
-        }
+        // if (Body is BlockSequenceNode blockNode)
+        // {
+            // blockNode.CreateNewScope = false;
+        // }
         
         object? result = null;
         while (true)

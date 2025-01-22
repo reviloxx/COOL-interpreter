@@ -21,37 +21,36 @@ class Main inherits IO {
                            out_int(math.modulo(n, j));
                            out_string(" --> is math.modulo(n, j) = 0? --> ");
                            out_stringln(math.modulo(n, j) = 0);
-                           out_string("right now, 'isPrime is:'");
-                           out_stringln(isPrime);
+                           -- out_string("right now, 'isPrime is:'");
+                           -- out_stringln(isPrime);
                            
                            if isPrime = true then
                               {
-                               out_stringln("in 'if isPrime = true'");
+                               -- out_stringln("in 'if isPrime = true'");
                                if math.modulo(n, j) = 0  then
                                    {
-                                       out_stringln("++++++++++++++++ Found divisor! Setting isPrime to false");
+                                       -- out_stringln("++++ Found divisor! Setting isPrime to false ++++");
                                        isPrime <- false;
-                                       out_string("right now, in if math.modulo(n, j) = 0, 'isPrime is:'");
-                                       out_stringln(isPrime);
+                                       -- out_string("right now, in if math.modulo(n, j) = 0, 'isPrime is:'");
+                                       -- out_stringln(isPrime);
                                    }
                                     else 
                                    {
                                        isPrime <- true;
                                    }fi;
                                } else {
-                                   out_stringln("------------------------------------------------------- ELSE");
                                }fi;
                                
                                j <- j + 1;
                        }
                    pool;
                    
-                   out_string("Finally, is '");
+                   out_string("+%+%+%+%+%+%+%+%+%+ Finally, is '");
                    out_int(n);
                    out_string("' a primeNumber? ");
                    
                    out_string(" | Answer: ");
-                   if isPrime then out_stringln("yes") else out_stringln("no")fi;
+                   if isPrime then out_stringln("yes +%+%+%+%+%+%+%+%+") else out_stringln("no +%+%+%+%+%+%+%+%+")fi;
                }fi;
             
         }
@@ -59,8 +58,8 @@ class Main inherits IO {
     main() : SELF_TYPE {
         {
             math <- new Math;
-            i <- 4;
-            countUntil <- 4
+            i <- 2;
+            countUntil <- 10
             -- daweil auf 5 damit nich so viel unnötiger code
             out_string("We count until: ")
             out_intln(countUntil)

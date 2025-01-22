@@ -22,7 +22,7 @@ public class MethodNode(ParserRuleContext? context) : FeatureNode(context)
         
         return null;
     }
-    
+     
     
     public override string ToString()
     {
