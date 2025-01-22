@@ -1,17 +1,11 @@
-﻿using Antlr4.Runtime;
+﻿namespace Cool.Interpreter.ASTNodes;
 
-namespace Cool.Interpreter.ASTNodes;
-
-public abstract class ExpressionNode : AstNode
+public abstract class ExpressionNode(ParserRuleContext? context) : AstNode(context)
 {
-    List<ExpressionNode> Children { get; set; } = new();
+    private List<ExpressionNode> _children { get; set; } = [];
 
-    public ExpressionNode(ParserRuleContext context) : base(context)
+    public override object? Execute(RuntimeEnvironment env)
     {
+        throw new NotImplementedException();
     }
-    // public override void Execute(RuntimeEnvironment env)
-    // {
-    //     throw new NotImplementedException();
-    // }
-    
 }

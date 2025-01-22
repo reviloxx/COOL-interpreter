@@ -1,15 +1,8 @@
-using System.Text;
-using Antlr4.Runtime;
-
 namespace Cool.Interpreter.ASTNodes;
 
-public class NegativeNode : ExpressionNode
+public class NegativeNode(ParserRuleContext context) : ExpressionNode(context)
 {
     public ExpressionNode? Expression { get; set; }
-
-    public NegativeNode(ParserRuleContext context) : base(context)
-    {
-    }
 
     public override object? Execute(RuntimeEnvironment env)
     {

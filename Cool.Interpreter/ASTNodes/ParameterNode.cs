@@ -1,14 +1,10 @@
-﻿using Antlr4.Runtime;
+﻿namespace Cool.Interpreter.ASTNodes;
 
-namespace Cool.Interpreter.ASTNodes;
-
-public class ParameterNode : AstNode
+public class ParameterNode(ParserRuleContext? context) : AstNode(context)
 {
     public required IdNode ParameterName { get; set; }
     public required TypeNode ParameterType { get; set; }
 
-    public ParameterNode(ParserRuleContext context) : base(context) { }
-    
     public override string ToString()
     {
         return $"{ParameterName} : {ParameterType}";

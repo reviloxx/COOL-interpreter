@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.Design;
-using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
+﻿using Antlr4.Runtime.Misc;
 using Cool.Interpreter.ASTNodes;
 using static CoolGrammarParser;
 
@@ -10,32 +8,27 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 {
     public override AstNode? VisitProgram([NotNull] ProgramContext context)
     {
-        ProgramNode programNode = new ProgramNode(context);
-
-        programNode.ClassDefineNodes =
-            context.classDefine().Select(x => VisitClassDefine(x) as ClassDefineNode).ToList();
+        ProgramNode programNode = new(context)
+        {
+            ClassDefineNodes = context.classDefine()
+                .Select(x => VisitClassDefine(x) as ClassDefineNode)
+                .ToList()
+        };
 
         return programNode;
     }
 
     public override AstNode? VisitClassDefine([NotNull] ClassDefineContext context)
     {
-        var className = new IdNode(context.TYPE(0).GetText(), context);
-        ClassDefineNode classDefineNode = new ClassDefineNode(context)
-        {
-            ClassName = className
-        };
+        var className = context.TYPE(0).GetText();
+        var baseClassName = context.TYPE(1)?.GetText();
 
-        if (context.TYPE(1) != null)
-        {
-            classDefineNode.BaseClassName = new IdNode(context.TYPE(1).GetText(), context);
-        }
+        ClassDefineNode classDefineNode = new(context, className, baseClassName);
 
         // Process each feature and add it to the appropriate collection
         foreach (var featureContext in context.feature())
         {
-            var feature = VisitFeature(featureContext) as FeatureNode;
-            if (feature != null)
+            if (VisitFeature(featureContext) is FeatureNode feature)
             {
                 classDefineNode.AddFeature(feature);
             }
@@ -56,15 +49,15 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
             return VisitProperty(context.property());
         }
 
-        return null; // Unbekannter Feature-Typ
+        return null;
     }
 
     public override AstNode? VisitMethod([NotNull] MethodContext context)
     {
         var node = new MethodNode(context)
         {
-            FeatureName = new IdNode(context.ID().GetText(), context), // Methodenname
-            ReturnType = new TypeNode(context, context.TYPE().GetText()) // Rückgabetyp
+            FeatureName = new IdNode(context.ID().GetText(), context),
+            ReturnType = new TypeNode(context, context.TYPE().GetText())
         };
 
         node.Parameters = context.formal()
@@ -73,29 +66,6 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
             .ToList()!;
 
         node.Body = Visit(context.expression()) as BlockSequenceNode;
-        
-        //TODO - ALLE Kontexte abarbeiten - Erstes Problem: ich komme hier mit einem methodcontext rein, das sollte nicht möglich sein?
-        // methodNode.Body = context.expression() switch
-        // {
-        //     ArithmeticContext arithmetic => VisitArithmetic(arithmetic) as ExpressionNode,
-        //     AssignmentContext assignment => VisitAssignment(assignment) as ExpressionNode,
-        //     BlockContext block => VisitBlock(block) as ExpressionNode,
-        //     BoolNotContext boolNot => VisitBoolNot(boolNot) as ExpressionNode,
-        //     BooleanContext boolean => VisitBoolean(boolean) as ExpressionNode,
-        //     CaseContext caseContext => VisitCase(caseContext) as ExpressionNode,
-        //     // ComparisonContext comparison => VisitComparison(comparison) as ExpressionNode,
-        //     DispatchExplicitContext dispatchExplicit => VisitDispatchExplicit(dispatchExplicit) as ExpressionNode,
-        //     DispatchImplicitContext dispatchImplicit => VisitDispatchImplicit(dispatchImplicit) as ExpressionNode,
-        //     IdContext id => VisitId(id) as ExpressionNode,
-        //     IfContext @if => VisitIf(@if) as ExpressionNode,
-        //     IntContext @int => VisitInt(@int) as ExpressionNode,
-        //     IsvoidContext isvoid => VisitIsvoid(isvoid) as ExpressionNode,
-        //     LetInContext letIn => VisitLetIn(letIn) as ExpressionNode,
-        //     NegativeContext negative => VisitNegative(negative) as ExpressionNode,
-        //     StringContext str => VisitString(str) as ExpressionNode,
-        //     WhileContext @while => VisitWhile(@while) as ExpressionNode,
-        //     _ => throw new NotSupportedException("Unknown expression type.")
-        // };
 
         return node;
     }
@@ -107,27 +77,19 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
         return new PropertyNode(context)
         {
-            FeatureName = new IdNode(formal.ID().GetText(), context), // Name der Eigenschaft
+            FeatureName = new IdNode(formal.ID().GetText(), context),
             InitialValue = context.expression() != null
-                ? Visit(context.expression()) as ExpressionNode // Optionaler Initialwert
+                ? Visit(context.expression()) as ExpressionNode
                 : null
         };
     }
 
     public override AstNode? VisitAssignment([NotNull] AssignmentContext context)
     {
-        AssignmentNode node = new AssignmentNode(context)
-        {
-            Target = new IdNode(context.ID().GetText(), context)
-        };
-        
-        AstNode value_node = Visit(context.expression()) as ExpressionNode;
-        
-        return new AssignmentNode(context)
-        {
-            Target = new IdNode(context.ID().GetText(), context), // Zielvariable
-            Value = Visit(context.expression()) as ExpressionNode // Zuweisungswert
-        };
+        var targetName = context.ID().GetText();
+        var value = Visit(context.expression()) as ExpressionNode;
+
+        return new AssignmentNode(context, targetName, value);
     }
 
     public override AstNode? VisitBlock([NotNull] BlockContext context)
@@ -157,7 +119,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override AstNode? VisitBoolNot([NotNull] BoolNotContext context)
     {
-        BoolNotNode node = new BoolNotNode(context)
+        BoolNotNode node = new(context)
         {
             Operand = Visit(context.expression()) as ExpressionNode
         };
@@ -178,215 +140,72 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         {
             Value = context.STRING().GetText().Trim('"') // Remove the surrounding quotes from the parsed string
         };
-    }
-    
+    }    
 
     public override AstNode? VisitArithmetic([NotNull] ArithmeticContext context)
     {
-       
-        BinaryOperationNode node;
-        switch (context.op.Text)
-        {
-            case "+":
-                node = new AddNode(context);
-                break;
-            case "-":
-                node = new SubNode(context);
-                break;
-            case "*":
-                node = new MulNode(context);
-                break;
-            case "/":
-                node = new DivNode(context);
-                break;
-            default:
-                throw new NotSupportedException();
-        }
-        
-        var leftExpr = Visit(context.expression(0));
-        var rightExpr = Visit(context.expression(1));
-
-        // Add debug checks
-        if (leftExpr == null)
+        if (Visit(context.expression(0)) is not ExpressionNode leftOperand)
             throw new InvalidOperationException($"Left expression visit returned null for {context.expression(0).GetText()}");
-    
-        if (rightExpr == null)
+
+        if (Visit(context.expression(1)) is not ExpressionNode rightOperand)
             throw new InvalidOperationException($"Right expression visit returned null for {context.expression(1).GetText()}");
 
-        node.LeftOperand = leftExpr as ExpressionNode 
-                           ?? throw new InvalidOperationException($"Left expression is not an ExpressionNode. It is: {leftExpr.GetType()}");
-        node.RightOperand = rightExpr as ExpressionNode 
-                            ?? throw new InvalidOperationException($"Right expression is not an ExpressionNode. It is: {rightExpr.GetType()}");
-
-        
-
-        return node;
-        
-     
-        // var left = Visit(context.expression(0))!;
-        // var right = Visit(context.expression(1))!;
-        //
-        // if (left.GetType() != right.GetType())
-        //     throw new Exception("Only matching types are supported for arithmetic expressions!");
-        //
-        // if (left is int)
-        // {
-        //     var leftInt = int.Parse(left.ToString()!);
-        //     var rightInt = int.Parse(right.ToString()!);
-        //
-        //     return context.op.Text switch
-        //     {
-        //         "+" => leftInt + rightInt,
-        //         "-" => leftInt - rightInt,
-        //         "*" => leftInt * rightInt,
-        //         "/" => rightInt != 0 ? leftInt / rightInt : throw new DivideByZeroException(),
-        //         _ => throw new Exception($"Operator {context.op.Text} not supported for int arithmetics!")
-        //     };
-        // }
-        //
-        // if (left is string)
-        // {
-        //     var leftStr = left.ToString();
-        //     var rightStr = right.ToString();
-        //
-        //     return context.op.Text switch
-        //     {
-        //         "+" => leftStr + rightStr,
-        //         _ => throw new Exception($"Operator {context.op.Text} not supported for string arithmetics!")
-        //     };
-        // }
-        //
-        // throw new Exception($"Type {left.GetType().Name} not supported for arithmetic expressions!");
+        return context.op.Text switch
+        {
+            "+" => new AddNode(context, leftOperand, rightOperand),
+            "-" => new SubNode(context, leftOperand, rightOperand),
+            "*" => new MulNode(context, leftOperand, rightOperand),
+            "/" => new DivNode(context, leftOperand, rightOperand),
+            _ => throw new NotSupportedException(),
+        };
     }
 
     public override AstNode? VisitComparisson([NotNull] ComparissonContext context)
     {
+        if (Visit(context.expression(0)) is not ExpressionNode leftOperand)
+            throw new InvalidOperationException($"Left expression visit returned null for {context.expression(0).GetText()}");
 
-        BinaryOperationNode node;
-        
-        switch (context.op.Text)
+        if (Visit(context.expression(1)) is not ExpressionNode rightOperand)
+            throw new InvalidOperationException($"Right expression visit returned null for {context.expression(1).GetText()}");
+
+        return context.op.Text switch
         {
-            case "=":
-                node = new EqualNode(context);
-                break;
-            case "<":
-                node = new SmallerNode(context);
-                break;
-            case "<=":
-                node = new SmallerEqualNode(context);
-                break;
-            default:
-                throw new NotSupportedException();
-        }
-        
-        
-
-        node.LeftOperand = Visit(context.expression(0)) as ExpressionNode;
-        node.RightOperand = Visit(context.expression(1)) as ExpressionNode;
-        return node;
-        
-        // throw new NotImplementedException();
-
-        // var left = Visit(context.expression(0))!;
-        // var right = Visit(context.expression(1))!;
-        //
-        // if (left.GetType() != right.GetType())
-        //     throw new Exception("Only matching types are supported for comparisson expressions!");
-        //
-        // if (left is int)
-        // {
-        //     var leftInt = int.Parse(left.ToString()!);
-        //     var rightInt = int.Parse(right.ToString()!);
-        //
-        //     return context.op.Text switch
-        //     {
-        //         "<=" => leftInt <= rightInt,
-        //         "<" => leftInt < rightInt,
-        //         "=" => leftInt == rightInt,
-        //         _ => throw new Exception($"Operator {context.op.Text} not supported for int comparisson!")
-        //     };
-        // }
-        //
-        // if (left is string)
-        // {
-        //     var leftStr = left.ToString();
-        //     var rightStr = right.ToString();
-        //
-        //     return context.op.Text switch
-        //     {
-        //         "=" => leftStr == rightStr,
-        //         _ => throw new Exception($"Operator {context.op.Text} not supported for string comparisson!")
-        //     };
-        // }
-        //
-        // if (left is bool)
-        // {
-        //     var leftBool = string.Equals(left.ToString(), "true", StringComparison.OrdinalIgnoreCase);
-        //     var rightBool = string.Equals(right.ToString(), "true", StringComparison.OrdinalIgnoreCase);
-        //
-        //     return context.op.Text switch
-        //     {
-        //         "=" => leftBool == rightBool,
-        //         _ => throw new Exception($"Operator {context.op.Text} not supported for boolean comparisson!")
-        //     };
-        // }
-        //
-        // throw new Exception($"Type {left.GetType().Name} not supported for comparisson expressions!");
+            "=" => new EqualNode(context, leftOperand, rightOperand),
+            "<" => new SmallerNode(context, leftOperand, rightOperand),
+            "<=" => new SmallerEqualNode(context, leftOperand, rightOperand),
+            _ => throw new NotSupportedException(),
+        };
     }
 
     public override AstNode? VisitId([NotNull] IdContext context)
     {
         return new IdNode(context.ID().GetText(), context);
-        // throw new NotImplementedException();
-
-        // var varName = context.ID().GetText();
-        //
-        // if (!_variables.TryGetValue(varName, out object? value))
-        //     throw new Exception($"Variable {varName} is not defined");
-        //
-        // return value;
     }
 
     public override AstNode? VisitDispatchImplicit([NotNull] DispatchImplicitContext context)
     {
-        var node = new DispatchNode(context)
-        {
-            MethodName = new IdNode(context.ID().GetText(), context)
-        };
-
-        // Visit all arguments
-        node.Arguments = context.expression()
-            .Select(expr => Visit(expr) as ExpressionNode)
+        var methodName = context.ID().GetText();
+        var arguments = context.expression()
             .Where(expr => expr != null)
-            .ToList()!;
+            .Select(expr => Visit(expr) as ExpressionNode)
+            .ToList();
 
-        return node;
+        return new DispatchNode(context, methodName, arguments!);
     }
 
     public override AstNode? VisitDispatchExplicit([NotNull] DispatchExplicitContext context)
     {
-        var node = new DispatchNode(context)
-        {
-            Object = Visit(context.expression(0)) as ExpressionNode,
-            MethodName = new IdNode(context.ID().GetText(), context)
-        };
-
-        // Handle @TYPE if present
-        if (context.TYPE() != null)
-        {
-            node.StaticType = new TypeNode(context, context.TYPE().GetText());
-        }
-
-        // Visit all arguments (skip first expression as it's the object)
-        node.Arguments = context.expression()
+        var methodName = context.ID().GetText();
+        var expression = Visit(context.expression(0)) as ExpressionNode;
+        var staticTypeName = context.TYPE()?.GetText();
+        var arguments = context.expression()
             .Skip(1)  // Skip the first expression (object)
-            .Select(expr => Visit(expr) as ExpressionNode)
             .Where(expr => expr != null)
-            .ToList()!;
+            .Select(expr => Visit(expr) as ExpressionNode)            
+            .ToList();
 
-        return node;
-    }
-    
+        return new DispatchNode(context, methodName, arguments!, staticTypeName, expression);
+    }    
 
     public override AstNode? VisitNew([NotNull] NewContext context)
     {
@@ -407,21 +226,19 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
     public override AstNode? VisitLetIn([NotNull] LetInContext context)
     {
         // Create a LetInNode to represent the let-in expression
-        LetInNode letInNode = new LetInNode(context);
+        LetInNode letInNode = new(context);
 
         // Process each property in the let declaration
         foreach (var propertyContext in context.property())
         {
-            var propertyNode = VisitProperty(propertyContext) as PropertyNode;
-            if (propertyNode != null)
+            if (VisitProperty(propertyContext) is PropertyNode propertyNode)
             {
                 letInNode.Declarations.Add(propertyNode);
             }
         }
 
         // Process the body expression
-        letInNode.Body = Visit(context.expression()) as ExpressionNode;
-        
+        letInNode.Body = Visit(context.expression()) as ExpressionNode;        
 
         return letInNode;
     }
@@ -451,18 +268,19 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override AstNode? VisitIf([NotNull] IfContext context)
     {
-        return new IfNode(context)
-        {
-            Condition = Visit(context.expression(0)) as ExpressionNode,
-            ThenBranch = Visit(context.expression(1)) as ExpressionNode,
-            ElseBranch = Visit(context.expression(2)) as ExpressionNode
-        };
+        if (Visit(context.expression(0)) is not ExpressionNode condition)
+            throw new InvalidOperationException($"Condition expression visit returned null for {context.expression(0).GetText()}");
+
+        if (Visit(context.expression(1)) is not ExpressionNode thenBranch)
+            throw new InvalidOperationException($"Then branch expression visit returned null for {context.expression(1).GetText()}");
+
+        var elseBranch = Visit(context.expression(2)) as ExpressionNode;
+
+        return new IfNode(context, condition, thenBranch, elseBranch);
     }
 
     public override AstNode? VisitCase([NotNull] CaseContext context)
     {
         throw new NotImplementedException();
-    }
-
-  
+    }  
 }
