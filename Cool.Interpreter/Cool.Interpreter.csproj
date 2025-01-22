@@ -12,6 +12,9 @@
     <None Remove=".gitignore" />
     <None Remove="CoolGrammar.g4" />
     <None Remove="LICENSE" />
+    <None Update="miniTest.cl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
