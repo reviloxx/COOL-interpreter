@@ -1,6 +1,4 @@
-﻿using Antlr4.Runtime;
-
-namespace Cool.Interpreter.ASTNodes;
+﻿namespace Cool.Interpreter.ASTNodes;
 
 public class TypeNode : AstNode
 {
@@ -9,7 +7,7 @@ public class TypeNode : AstNode
 
     public enum TypeEnum { tUndefined, tVoid, tInt, tString,tBool };
 
-    public TypeNode(ParserRuleContext context, string typeName) : base(context)
+    public TypeNode(ParserRuleContext? context, string typeName) : base(context)
     {
         TypeName = typeName;
         ValueType = TypeEnum.tUndefined;

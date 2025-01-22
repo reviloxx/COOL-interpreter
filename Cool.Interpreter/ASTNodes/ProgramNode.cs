@@ -1,19 +1,12 @@
-﻿using System.Text;
-using Antlr4.Runtime;
+﻿namespace Cool.Interpreter.ASTNodes;
 
-namespace Cool.Interpreter.ASTNodes;
-
-public class ProgramNode : AstNode
+public class ProgramNode(ParserRuleContext context) : AstNode(context)
 {
     public List<ClassDefineNode?> ClassDefineNodes = new();
 
-    public ProgramNode(ParserRuleContext context) : base(context)
-    {
-    }
-    
     // public void Accept(ICoolGrammarVisitor<ASTNodes> visitor)
     // {
-        // visitor.Visit(this);
+    // visitor.Visit(this);
     // }
 
     public override object? Execute(RuntimeEnvironment env)
@@ -27,7 +20,7 @@ public class ProgramNode : AstNode
         
         // Find the main Class
         var mainClass = ClassDefineNodes
-            .FirstOrDefault(c => c?.ClassName.Name.Equals("Main", StringComparison.OrdinalIgnoreCase) == true);
+            .FirstOrDefault(c => c?.ClassName.Equals("Main", StringComparison.OrdinalIgnoreCase) == true);
 
         if (mainClass != null)
         {

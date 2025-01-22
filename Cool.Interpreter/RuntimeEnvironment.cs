@@ -14,16 +14,12 @@ public class RuntimeEnvironment
     public RuntimeEnvironment()
     {
         // Register built-in classes
-        RegisterClass(new IOClassNode
-        {
-            ClassName = new IdNode("IO", null)
-        });
-
+        RegisterClass(new IOClassNode());
     }
     
     public void RegisterClass(ClassDefineNode classNode)
     {
-        Classes[classNode.ClassName.Name.ToUpperInvariant()] = classNode;
+        Classes[classNode.ClassName.ToUpperInvariant()] = classNode;
     }
     
     public object? LookupVariable(string name)

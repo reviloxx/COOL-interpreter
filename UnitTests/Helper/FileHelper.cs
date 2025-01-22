@@ -6,12 +6,9 @@ public static class FileHelper
     {
         var file = testType switch
         {
-            TestType.AlgorithmSuccess => Path.Combine(Environment.CurrentDirectory, "TestCases", "Algorithm", "success", testName),
-            TestType.AlgorithmFail => Path.Combine(Environment.CurrentDirectory, "TestCases", "Algorithm", "fail", testName),
-            TestType.ParsingSuccess => Path.Combine(Environment.CurrentDirectory, "TestCases", "Parsing", "success", testName),
-            TestType.ParsingFail => Path.Combine(Environment.CurrentDirectory, "TestCases", "Parsing", "fail", testName),
-            TestType.SemanticsSuccess => Path.Combine(Environment.CurrentDirectory, "TestCases", "Semantics", "success", testName),
-            TestType.SemanticsFail => Path.Combine(Environment.CurrentDirectory, "TestCases", "Semantics", "fail", testName),
+            TestType.Algorithm => Path.Combine(Environment.CurrentDirectory, "TestCases", "Algorithm", testName),
+            TestType.Parsing => Path.Combine(Environment.CurrentDirectory, "TestCases", "Parsing", testName),
+            TestType.Semantics => Path.Combine(Environment.CurrentDirectory, "TestCases", "Semantics", testName),
             _ => throw new ArgumentException("Invalid testType!")
         };
 
@@ -24,10 +21,7 @@ public static class FileHelper
 
 public enum TestType
 {
-    AlgorithmSuccess,
-    AlgorithmFail,
-    ParsingSuccess,
-    ParsingFail,
-    SemanticsSuccess,
-    SemanticsFail
+    Algorithm,
+    Parsing,
+    Semantics,
 }

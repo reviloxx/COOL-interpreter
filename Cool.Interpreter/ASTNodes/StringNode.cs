@@ -1,15 +1,8 @@
-using System.Text;
-using Antlr4.Runtime;
-
 namespace Cool.Interpreter.ASTNodes;
 
-public class StringNode : ExpressionNode
+public class StringNode(ParserRuleContext context) : ExpressionNode(context)
 {
     public string Value { get; set; }
-
-    public StringNode(ParserRuleContext context) : base(context)
-    {
-    }
 
     public override object? Execute(RuntimeEnvironment env)
     {

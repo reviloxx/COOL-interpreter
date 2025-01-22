@@ -1,8 +1,5 @@
-﻿using Antlr4.Runtime.Tree;
-using Antlr4.Runtime;
+﻿using Antlr4.Runtime;
 using Cool.Interpreter;
-using System.Drawing.Text;
-using static CoolGrammarParser;
 using Cool.Interpreter.ASTNodes;
 
 var inputFile = "helloworld.cl";
@@ -16,10 +13,9 @@ var context = parser.program();
 
 CoolGrammarVisitorAstBuilder builder = new();
 
-
 AstNode root_node = (AstNode)builder.Visit(context)!;
-Console.WriteLine(root_node);
+//Console.WriteLine(root_node);
 
-RuntimeEnvironment env = new RuntimeEnvironment();
+RuntimeEnvironment env = new();
 root_node.Execute(env);
 

@@ -1,7 +1,4 @@
-﻿using Antlr4.Runtime;
-using Microsoft.VisualBasic;
-
-namespace Cool.Interpreter.ASTNodes;
+﻿namespace Cool.Interpreter.ASTNodes;
 
 public abstract class AstNode
 {
@@ -9,7 +6,7 @@ public abstract class AstNode
 
     public int Column { get; }
 
-    public Dictionary<string, dynamic> Attributes { get; }
+    public Dictionary<string, dynamic> Attributes { get; } = [];
 
     public AstNode(ParserRuleContext? context)
     {
@@ -24,7 +21,6 @@ public abstract class AstNode
             Line = 0;
             Column = 0;
         }
-        Attributes = new Dictionary<string, dynamic>();
     }
 
     public AstNode(int line, int column)
