@@ -14,5 +14,12 @@ public class StringWriterMock : TextWriter
         WrittenLines.Add(value);
     }
 
+    public override void Write(string? value)
+    {
+        if (value == null) return;
+
+        WrittenLines.Add(value);
+    }
+
     public void ClearWrittenLines() => WrittenLines = [];
 }

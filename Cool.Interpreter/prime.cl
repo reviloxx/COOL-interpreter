@@ -8,32 +8,15 @@ class Main inherits IO {
             else
                {
                    j <- 2;
-                   isPrime <- true;
-                   
-                   out_string(" ---------------------------------- Testing n: ");
-                   out_intln(n);
+                   isPrime <- true;                   
                    
                    while j < n loop
-                       {
-                           out_string("Testing divisor j: ");
-                           out_intln(j);
-                           out_string("math.modulo(n, j) is: ");
-                           out_int(math.modulo(n, j));
-                           out_string(" --> is math.modulo(n, j) = 0? --> ");
-                           out_stringln(math.modulo(n, j) = 0);
-                           -- out_string("right now, 'isPrime is:'");
-                           -- out_stringln(isPrime);
-                           
+                       {                           
                            if isPrime = true then
                               {
-                               -- out_stringln("in 'if isPrime = true'");
                                if math.modulo(n, j) = 0  then
                                    {
-                                       -- out_stringln("++++ Found divisor! Setting isPrime to false ++++");
                                        isPrime <- false;
-                                       -- out_string("right now, in if math.modulo(n, j) = 0, 'isPrime is:'");
-                                       -- out_stringln(isPrime);
-                                   }
                                     else 
                                    {
                                        isPrime <- true;
@@ -60,21 +43,12 @@ class Main inherits IO {
             math <- new Math;
             i <- 2;
             countUntil <- 10
-            -- daweil auf 5 damit nich so viel unnötiger code
             out_string("We count until: ")
             out_intln(countUntil)
             
             while i <= countUntil loop 
                 {
-                    if is_prime(i, math) then
-                        {
-                            out_string("is_prime = true for: ")
-                            out_intln(i);
-                        }
-                    else
-                        {
-                            true;
-                        }fi;
+                    is_prime(i, math);
                     i <- i + 1;
                 }
             pool;

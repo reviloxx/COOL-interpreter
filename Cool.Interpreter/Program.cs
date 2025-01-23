@@ -1,8 +1,7 @@
 ﻿using Cool.Interpreter;
 using Cool.Interpreter.ASTNodes;
 
-//var inputFile = "miniTest.cl";
-var inputFile = "helloworld.cl";
+var inputFile = "prime.cl";
 var streamReader = new StreamReader(inputFile);
 
 AntlrInputStream input = new(streamReader);
