@@ -6,7 +6,7 @@ namespace Cool.Interpreter;
 
 public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 {
-    public override AstNode? VisitProgram([NotNull] ProgramContext context)
+    public override ProgramNode VisitProgram([NotNull] ProgramContext context)
     {
         var classDefineNodes = context.classDefine()
             .Select(VisitClassDefine);
@@ -61,7 +61,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return new PropertyNode(propertyName, propertyType, initialValue, context);
     }
 
-    public override AstNode? VisitAssignment([NotNull] AssignmentContext context)
+    public override AssignmentNode VisitAssignment([NotNull] AssignmentContext context)
     {
         var targetName = context.ID().GetText();
         var value = Visit(context.expression()) as ExpressionNode;
@@ -69,7 +69,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return new AssignmentNode(targetName, value, context);
     }
 
-    public override AstNode? VisitBlock([NotNull] BlockContext context)
+    public override BlockSequenceNode VisitBlock([NotNull] BlockContext context)
     {
         var expressions = context.expression().Select(x => Visit(x) as ExpressionNode);
         return new BlockSequenceNode(expressions!, context);
@@ -224,8 +224,25 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return new IfNode(condition, thenBranch, elseBranch, context);
     }
 
-    public override AstNode? VisitCase([NotNull] CaseContext context)
+    public override CaseNode VisitCase([NotNull] CaseContext context)
     {
+        //ExpressionNode expression = Visit(context.expression());
+
+        //var branches = new List<CaseBranch>();
+
+        //foreach (var branchCtx in context.case_branch())
+        //{
+        //    // Hole den Variablennamen (Identifier)
+        //    string identifier = branchCtx.ID().GetText();
+
+        //    string type = branchCtx.TYPE().GetText();
+
+        //    ExpressionNode body = Visit(branchCtx.expression());
+
+        //    branches.Add(new CaseBranch(identifier, type, body));
+        //}
+
+        //return new CaseExpressionNode(expression, branches);
         throw new NotImplementedException();
     }  
 }

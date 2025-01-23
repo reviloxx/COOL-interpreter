@@ -62,6 +62,28 @@ public class VisitorTests : VisitorTestsBase
         _stringWriterMock.ClearWrittenLines();
     }
 
+    [Test]
+    public void Case()
+    {
+        var file = GetFile("case.cl");
+        var context = GetProgramContext(file);
+
+        List<string> expectedOutput =
+        [
+            "Value is five."
+        ];
+
+        Assert.DoesNotThrow(() =>
+        {
+            var rootNode = GetRootNode(context);
+            Execute(rootNode);
+        });
+
+        Assert.That(ValidateOutput(expectedOutput), Is.True);
+        _stringWriterMock.ClearWrittenLines();
+    }
+
+
     private string GetFile(string testName)
     {
         var file = Path.Combine(Environment.CurrentDirectory, "TestCases", testName);
