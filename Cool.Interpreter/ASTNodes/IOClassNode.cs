@@ -2,98 +2,32 @@ namespace Cool.Interpreter.ASTNodes;
 
 public class IOClassNode : ClassDefineNode
 {
-    public IOClassNode() : base(null, "IO", null) // null context since this is built-in
-    {        
-        // Add built-in methods outstring
-        AddFeature(new BuiltInMethodNode()
+    public IOClassNode() : base("IO") // no context since this is built-in
+    {
+        static object? write(RuntimeEnvironment env, List<object?> args)
         {
-            FeatureName = new IdNode("out_string", null),  // Required by FeatureNode
-            Parameters =
-            [
-                new ParameterNode(null) 
-                {
-                    ParameterName = new IdNode("x", null),
-                    ParameterType = new TypeNode(null, "String")
-                } 
-            ],
-            ReturnType = new TypeNode(null, "SELF_TYPE"),
-            ExecuteImpl = (env, args) => 
+            if (args.Count > 0 && args[0] != null)
             {
-                if (args.Count > 0 && args[0] != null)
-                {
-                    Console.Write(args[0]!.ToString());
-                }
-                return env.LookupVariable("self");
+                Console.Write(args[0]!.ToString());
             }
-        });
+            return env.LookupVariable("self");
+        }
 
-        AddFeature(new BuiltInMethodNode()
+        static object? writeLine(RuntimeEnvironment env, List<object?> args)
         {
-            FeatureName = new IdNode("out_int", null),  // Required by FeatureNode
-            Parameters =
-            [
-                new ParameterNode(null) 
-                {
-                    ParameterName = new IdNode("x", null),
-                    ParameterType = new TypeNode(null, "Int")
-                } 
-            ],
-            ReturnType = new TypeNode(null, "SELF_TYPE"),
-            ExecuteImpl = (env, args) => 
+            if (args.Count > 0 && args[0] != null)
             {
-                if (args.Count > 0 && args[0] != null)
-                {
-                    Console.Write(args[0]!.ToString());
-                }
-                return env.LookupVariable("self");
+                Console.WriteLine(args[0]!.ToString());
             }
-        }); 
-        
-        // Add built-in methods outstring LINEFEED
-        AddFeature(new BuiltInMethodNode()
-        {
-            FeatureName = new IdNode("out_stringln", null), // Required by FeatureNode
-            Parameters =
-            [
-                new ParameterNode(null)
-                {
-                    ParameterName = new IdNode("x", null),
-                    ParameterType = new TypeNode(null, "String")
-                }
-            ],
-            ReturnType = new TypeNode(null, "SELF_TYPE"),
-            ExecuteImpl = (env, args) =>
-            {
-                if (args.Count > 0 && args[0] != null)
-                {
-                    Console.WriteLine(args[0]!.ToString());
-                }
+            return env.LookupVariable("self");
+        }
 
-                return env.LookupVariable("self");
-            }
-        });
-
-        AddFeature(new BuiltInMethodNode()
-        {
-            FeatureName = new IdNode("out_intln", null), // Required by FeatureNode
-            Parameters =
-            [
-                new ParameterNode(null)
-                {
-                    ParameterName = new IdNode("x", null),
-                    ParameterType = new TypeNode(null, "Int")
-                }
-            ],
-            ReturnType = new TypeNode(null, "SELF_TYPE"),
-            ExecuteImpl = (env, args) =>
-            {
-                if (args.Count > 0 && args[0] != null)
-                {
-                    Console.WriteLine(args[0]!.ToString());
-                }
-
-                return env.LookupVariable("self");
-            }
-        });
+        AddFeatures(
+        [
+            new BuiltInMethodNode("out_string", [new ParameterNode("x", new TypeNode("String"))], new TypeNode("SELF_TYPE"), write),
+            new BuiltInMethodNode("out_int", [new ParameterNode("x", new TypeNode("Int"))], new TypeNode("SELF_TYPE"), write),
+            new BuiltInMethodNode("out_stringln", [new ParameterNode("x", new TypeNode("String"))], new TypeNode("SELF_TYPE"), writeLine),
+            new BuiltInMethodNode("out_intln", [new ParameterNode("x", new TypeNode("Int"))], new TypeNode("SELF_TYPE"), writeLine)
+        ]);
     }
 }

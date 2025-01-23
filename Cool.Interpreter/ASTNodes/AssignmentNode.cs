@@ -1,6 +1,6 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class AssignmentNode(ParserRuleContext? context, string targetName, ExpressionNode? value) : ExpressionNode(context)
+public class AssignmentNode(string targetName, ExpressionNode? value, ParserRuleContext? context = null) : ExpressionNode(context)
 {
     private readonly IdNode _target = new(targetName, context);
     private readonly ExpressionNode? _value = value;

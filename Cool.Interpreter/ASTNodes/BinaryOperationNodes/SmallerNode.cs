@@ -1,6 +1,6 @@
 namespace Cool.Interpreter.ASTNodes.BinaryOperationNodes;
 
-public class SmallerNode(ParserRuleContext? context, ExpressionNode leftOperand, ExpressionNode rightOperand) : BinaryOperationNode(context, leftOperand, rightOperand)
+public class SmallerNode(ExpressionNode leftOperand, ExpressionNode rightOperand, ParserRuleContext? context = null) : BinaryOperationNode(leftOperand, rightOperand, context)
 {
     public override string Symbol => "<";
 

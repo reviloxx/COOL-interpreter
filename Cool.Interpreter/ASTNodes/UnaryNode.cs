@@ -1,9 +1,9 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public abstract class UnaryNode(ParserRuleContext context) : ExpressionNode(context)
+public abstract class UnaryNode(ExpressionNode operand, ParserRuleContext? context) : ExpressionNode(context)
 {
-    
-    public ExpressionNode Operand { get; set; }
+
+    protected readonly ExpressionNode _operand = operand;
 
     public abstract string Symbol { get; }
 }

@@ -1,36 +1,18 @@
-﻿using System.Text;
-using Antlr4.Runtime;
+﻿namespace Cool.Interpreter.ASTNodes;
 
-namespace Cool.Interpreter.ASTNodes;
-
-public class BlockSequenceNode(ParserRuleContext? context) : ExpressionNode(context)
+public class BlockSequenceNode(IEnumerable<ExpressionNode> expressions, ParserRuleContext? context) : ExpressionNode(context)
 {
-    public List<ExpressionNode?> Expressions { get; set; } = [];
-
-    public bool CreateNewScope { get; set; } = true;
+    private readonly IEnumerable<ExpressionNode> _expressions = expressions;
 
     public override object? Execute(RuntimeEnvironment env)
     {
-        // if (CreateNewScope)
-            // env.PushScope();
+        object? lastResult = null;
+        foreach (var expr in _expressions)
+        {
+            lastResult = expr.Execute(env);
+        }
         
-        // try
-        // {
-            object? lastResult = null;
-            foreach (var expr in Expressions)
-            {
-                if (expr != null)
-                {
-                    lastResult = expr.Execute(env);
-                }
-            }
-            return lastResult;
-        // }
-        // finally
-        // {
-            // if (CreateNewScope)
-                // env.PopScope();
-        // }
+        return lastResult;
     }
 
     public override string ToString()
@@ -39,7 +21,7 @@ public class BlockSequenceNode(ParserRuleContext? context) : ExpressionNode(cont
         sb.AppendLine($"{GetIndentation()}Block {{");
         
         IncreaseIndent();
-        foreach (var expr in Expressions)
+        foreach (var expr in _expressions)
         {
             if (expr != null)
             {

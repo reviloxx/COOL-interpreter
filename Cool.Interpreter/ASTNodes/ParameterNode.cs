@@ -1,13 +1,14 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class ParameterNode(ParserRuleContext? context) : AstNode(context)
+public class ParameterNode(string parameterName, TypeNode parameterType, ParserRuleContext? context = null) : AstNode(context)
 {
-    public required IdNode ParameterName { get; set; }
-    public required TypeNode ParameterType { get; set; }
+    public string ParameterName => _parameterIdNode.Name;
+    private readonly IdNode _parameterIdNode = new(parameterName, context);
+    private readonly TypeNode _parameterType = parameterType;
 
     public override string ToString()
     {
-        return $"{ParameterName} : {ParameterType}";
+        return $"{_parameterIdNode} : {_parameterType}";
     }
     
     public override object? Execute(RuntimeEnvironment env)

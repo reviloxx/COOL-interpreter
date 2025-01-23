@@ -1,11 +1,7 @@
 ﻿namespace Cool.Interpreter.ASTNodes.FeatureNodes;
 
-public class FeatureNode(ParserRuleContext? context) : AstNode(context)
+public abstract class FeatureNode(string featureName, ParserRuleContext? context = null) : AstNode(context)
 {
-    public required IdNode FeatureName { get; set; }
-
-    public override object? Execute(RuntimeEnvironment env)
-    {
-        throw new NotImplementedException();
-    }
+    public string FeatureName => _featureIdNode.Name;
+    protected readonly IdNode _featureIdNode = new(featureName, context);
 }

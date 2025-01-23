@@ -1,10 +1,10 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class DispatchNode(ParserRuleContext? context, string methodName, List<ExpressionNode> arguments, string? staticTypeName = null, ExpressionNode? expression = null) : ExpressionNode(context)
+public class DispatchNode(string methodName, IEnumerable<ExpressionNode> arguments, string? staticTypeName = null, ExpressionNode? expression = null, ParserRuleContext? context = null) : ExpressionNode(context)
 {
     private readonly IdNode _methodId = new(methodName, context);
-    private readonly List<ExpressionNode> _arguments = arguments;
-    private readonly TypeNode? _staticType = staticTypeName == null ? null : new(context, staticTypeName);    // For @TYPE syntax
+    private readonly IEnumerable<ExpressionNode> _arguments = arguments;
+    private readonly TypeNode? _staticType = staticTypeName == null ? null : new(staticTypeName, context);    // For @TYPE syntax
     private readonly ExpressionNode? _expression = expression;  // Will be null for implicit dispatch      
     
     public override object? Execute(RuntimeEnvironment env)
@@ -84,12 +84,12 @@ public class DispatchNode(ParserRuleContext? context, string methodName, List<Ex
             env.DefineVariable("self", dispatchObject);
             
             // Bind parameters to arguments
-            if (method.Parameters.Count != evaluatedArgs.Count)
-                throw new Exception($"Method {_methodId.Name} expects {method.Parameters.Count} arguments but got {evaluatedArgs.Count} at line {Line}, column {Column}");
+            if (method.Parameters.Count() != evaluatedArgs.Count)
+                throw new Exception($"Method {_methodId.Name} expects {method.Parameters.Count()} arguments but got {evaluatedArgs.Count} at line {Line}, column {Column}");
                 
-            for (int i = 0; i < method.Parameters.Count; i++)
+            for (int i = 0; i < method.Parameters.Count(); i++)
             {
-                env.DefineVariable(method.Parameters[i].ParameterName.Name, evaluatedArgs[i]);
+                env.DefineVariable(method.Parameters.ElementAt(i).ParameterName, evaluatedArgs[i]);
             }
 
             // 5. Execute the method body

@@ -1,16 +1,16 @@
 namespace Cool.Interpreter.ASTNodes;
 
-public class ParenthesesNode(ParserRuleContext context) : ExpressionNode(context)
+public class ParenthesesNode(ExpressionNode? expression, ParserRuleContext? context = null) : ExpressionNode(context)
 {
-    public ExpressionNode? Expression { get; set; }
+    private readonly ExpressionNode? _expression = expression;
 
     public override object? Execute(RuntimeEnvironment env)
     {
-        return Expression?.Execute(env);
+        return _expression?.Execute(env);
     }
 
     public override string ToString()
     {
-        return $"{GetIndentation()}({Expression})";
+        return $"{GetIndentation()}({_expression})";
     }
 }

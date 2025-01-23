@@ -1,8 +1,8 @@
 namespace Cool.Interpreter.ASTNodes;
 
-public class NegativeNode(ParserRuleContext context) : ExpressionNode(context)
+public class NegativeNode(ExpressionNode? expression, ParserRuleContext? context) : ExpressionNode(context)
 {
-    public ExpressionNode? Expression { get; set; }
+    private readonly ExpressionNode? Expression = expression;
 
     public override object? Execute(RuntimeEnvironment env)
     {

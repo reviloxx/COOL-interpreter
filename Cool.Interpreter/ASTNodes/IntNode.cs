@@ -1,18 +1,18 @@
 namespace Cool.Interpreter.ASTNodes;
 
-public class IntNode(ParserRuleContext context) : ExpressionNode(context)
+public class IntNode(int value, ParserRuleContext? context) : ExpressionNode(context)
 {
-    public int Value { get; set; }
+    private readonly int _value = value;
+
+    public override object? Execute(RuntimeEnvironment env)
+    {
+        return _value;
+    }
 
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"{GetIndentation()}Integer: {Value}");
+        sb.AppendLine($"{GetIndentation()}Integer: {_value}");
         return sb.ToString();
-    }
-    
-    public override object? Execute(RuntimeEnvironment env)
-    {
-        return Value;
     }
 }

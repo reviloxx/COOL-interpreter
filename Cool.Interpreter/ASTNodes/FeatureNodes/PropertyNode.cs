@@ -1,18 +1,19 @@
 ﻿namespace Cool.Interpreter.ASTNodes.FeatureNodes;
 
-public class PropertyNode : FeatureNode
+public class PropertyNode(string propertyName, TypeNode propertyType, ExpressionNode? initialValue = null, ParserRuleContext? context = null) : FeatureNode(propertyName, context)
 {
-    public TypeNode Type { get; set; }
-    public ExpressionNode? InitialValue { get; set; } // Optionaler Initialwert
+    private readonly TypeNode _propertyType = propertyType;
+    public ExpressionNode? InitialValue { get; private set; } = initialValue;
 
-    public PropertyNode(ParserRuleContext context) : base(context)
+    public override object? Execute(RuntimeEnvironment env)
     {
+        throw new NotImplementedException();
     }
-    
+
     public override string ToString()
     {
         var sb = new StringBuilder();
-        sb.Append($"{GetIndentation()}Property {FeatureName} : {Type}");
+        sb.Append($"{GetIndentation()}Property {_featureIdNode} : {_propertyType}");
         
         if (InitialValue != null)
         {
