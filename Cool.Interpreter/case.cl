@@ -4,6 +4,7 @@
         case input of
             i : Int => out_int(i + 10);
             s : String => out_string("String gefunden: " ^ s);
+            -- b : true => out_string(b);
         esac;
     };
 };

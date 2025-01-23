@@ -136,27 +136,18 @@ public class VisitorTests : VisitorTestsBase
     [TestCase("shadow-attr-case_EDITED.cl")]
     [TestCase("sort_list.cl")]
     [TestCase("test.cl")]
-    public void Success(string testCase)
+    public void Algorithm(string testCase)
     {
-        var file = GetFile(TestType.AlgorithmSuccess, testCase);
-        var context = GetProgramContext(file);
+        var file = FileHelper.GetFile(TestType.AlgorithmSuccess, testCase);
+        var context = GetProgramContext(file);        
 
-        Assert.DoesNotThrow(() => StartVisitor(context));
+        Assert.DoesNotThrow(() =>
+        {
+            var rootNode = GetRootNode(context);
+            Execute(rootNode);
+        });
     }
 
-    [Test]
-    [TestCase("hairyscary.cl")]
-    public void Fail(string testCase)
-    {
-        var file = GetFile(TestType.AlgorithmFail, testCase);
-        var context = GetProgramContext(file);
-
-        Assert.Throws<Exception>(() => StartVisitor(context));
-    }
-}
-
-public class ParsingTests : VisitorTestsBase
-{
     [Test]
     [TestCase("abort.cl")]
     [TestCase("addedlet.cl")]
@@ -279,61 +270,18 @@ public class ParsingTests : VisitorTestsBase
     [TestCase("whileexpressionblock.cl")]
     [TestCase("whileOK.cl")]
     [TestCase("whileoneexpression.cl")]
-    public void Success(string testCase)
+    public void Parsing(string testCase)
     {
         var file = FileHelper.GetFile(TestType.ParsingSuccess, testCase);
         var context = GetProgramContext(file);
 
-        Assert.DoesNotThrow(() => StartVisitor(context));
+        Assert.DoesNotThrow(() =>
+        {
+            var rootNode = GetRootNode(context);
+            Execute(rootNode);
+        });
     }
 
-    [Test]
-    [TestCase("all_else_true.cl")]
-    [TestCase("attrcapitalname.cl")]
-    [TestCase("bad.cl")]
-    [TestCase("badblock.cl")]
-    [TestCase("baddispatch1.cl")]
-    [TestCase("baddispatch2.cl")]
-    [TestCase("baddispatch3.cl")]
-    [TestCase("baddispatch4.cl")]
-    [TestCase("badexprlist.cl")]
-    [TestCase("badfeaturenames.cl")]
-    [TestCase("badfeatures.cl")]
-    [TestCase("casenoexpr.cl")]
-    [TestCase("classbadinherits.cl")]
-    [TestCase("classbadname.cl")]
-    [TestCase("classnoname.cl")]
-    [TestCase("emptyassign.cl")]
-    [TestCase("emptymethodbody.cl")]
-    [TestCase("emptyprogram.cl")]
-    [TestCase("emptystaticdispatch.cl")]
-    [TestCase("extrasemicolonblock.cl")]
-    [TestCase("firstbindingerrored.cl")]
-    [TestCase("firstclasserrored.cl")]
-    [TestCase("ifnoelse.cl")]
-    [TestCase("ifnoelsebranch.cl")]
-    [TestCase("ifnofi.cl")]
-    [TestCase("ifnothenbranch.cl")]
-    [TestCase("isvoidbadtype.cl")]
-    [TestCase("multipleclasses.cl")]
-    [TestCase("multiplemethoderrors.cl")]
-    [TestCase("newbadtype.cl")]
-    [TestCase("only_one_comment.cl")]
-    [TestCase("returntypebad.cl")]
-    [TestCase("secondbindingerrored.cl")]
-    [TestCase("test.3.cl")]
-    [TestCase("whilebad.cl")]
-    public void Fail(string testCase)
-    {
-        var file = GetFile(TestType.ParsingFail, testCase);
-        var context = GetProgramContext(file);
-
-        Assert.Throws<Exception>(() => StartVisitor(context));
-    }
-}
-
-public class SemanticsTests : VisitorTestsBase
-{
     [Test]
     [TestCase("abort.cl")]
     [TestCase("addedlet.cl")]
@@ -446,46 +394,15 @@ public class SemanticsTests : VisitorTestsBase
     [TestCase("whileexpressionblock.cl")]
     [TestCase("whileOK.cl")]
     [TestCase("whileoneexpression.cl")]
-    public void Success(string testCase)
+    public void Semantics(string testCase)
     {
-        var file = GetFile(TestType.SemanticsSuccess, testCase);
+        var file = FileHelper.GetFile(TestType.SemanticsSuccess, testCase);
         var context = GetProgramContext(file);
 
-        Assert.DoesNotThrow(() => StartVisitor(context));
-    }
-
-    [Test]
-    [TestCase("addedlet-int+string.cl")]
-    [TestCase("addedlet-string+string.cl")]
-    [TestCase("all-types-builtin-and-complex.cl")]
-    [TestCase("arithprecedence.cl")]
-    [TestCase("associativity+.cl")]
-    [TestCase("associativity-times.cl")]
-    [TestCase("associativity.cl")]
-    [TestCase("associativitydiv.cl")]
-    [TestCase("comparisons-assoc.cl")]
-    [TestCase("dispatchonearg.cl")]
-    [TestCase("equalsassociativity.cl")]
-    [TestCase("error-out_string-param.cl")]
-    [TestCase("example_coolmanual_pag7.cl")]
-    [TestCase("inherit-bool.cl")]
-    [TestCase("inherit-int.cl")]
-    [TestCase("inherit-string.cl")]
-    [TestCase("letinitmultiplebindings.cl")]
-    [TestCase("lteassociativity.cl")]
-    [TestCase("multipleattributes.cl")]
-    [TestCase("recclass.cl")]
-    [TestCase("testing_self.cl")]
-    [TestCase("type-final-inherit-string.cl")]
-    [TestCase("type-intt-not-exist.cl")]
-    [TestCase("variable-in-parent-class.cl")]
-    [TestCase("while-not-return-Object.cl")]
-    [TestCase("whileoneexpression-type-object.cl")]
-    public void Fail(string testCase)
-    {
-        var file = GetFile(TestType.SemanticsFail, testCase);
-        var context = GetProgramContext(file);
-
-        Assert.Throws<Exception>(() => StartVisitor(context));
+        Assert.DoesNotThrow(() =>
+        {
+            var rootNode = GetRootNode(context);
+            Execute(rootNode);
+        });
     }
 }

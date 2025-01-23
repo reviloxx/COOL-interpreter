@@ -211,38 +211,25 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return new NegativeNode(expression, context);
     }
 
-    public override IfNode VisitIf([NotNull] IfContext context)
+    public override CaseNode? VisitCase([NotNull] CaseContext context)
     {
-        if (Visit(context.expression(0)) is not ExpressionNode condition)
-            throw new InvalidOperationException($"Condition expression visit returned null for {context.expression(0).GetText()}");
+        // Die Expression für das case-Statement
+        var caseExpression = Visit(context.expression(0)) as ExpressionNode 
+                             ?? throw new InvalidOperationException("Case expression is null.");
 
-        if (Visit(context.expression(1)) is not ExpressionNode thenBranch)
-            throw new InvalidOperationException($"Then branch expression visit returned null for {context.expression(1).GetText()}");
+        // Branches parsen und FormalNode für ID und Typ verwenden
+        var caseBranches = new List<ExpressionNode?>();
 
-        var elseBranch = Visit(context.expression(2)) as ExpressionNode;
+        for (int i = 1; i < context.expression().Length; i++)
+        {
+            caseBranches.Add(Visit(context.expression(i)) as ExpressionNode);
 
-        return new IfNode(condition, thenBranch, elseBranch, context);
+        }
+//TODO irgendwas hier noch machen denk ich
+        CaseNode? caseNode = new CaseNode(caseExpression, caseBranches);
+        // return new CaseNode(caseExpression, branches, context);
+        return caseNode;
     }
 
-    public override CaseNode VisitCase([NotNull] CaseContext context)
-    {
-        //ExpressionNode expression = Visit(context.expression());
 
-        //var branches = new List<CaseBranch>();
-
-        //foreach (var branchCtx in context.case_branch())
-        //{
-        //    // Hole den Variablennamen (Identifier)
-        //    string identifier = branchCtx.ID().GetText();
-
-        //    string type = branchCtx.TYPE().GetText();
-
-        //    ExpressionNode body = Visit(branchCtx.expression());
-
-        //    branches.Add(new CaseBranch(identifier, type, body));
-        //}
-
-        //return new CaseExpressionNode(expression, branches);
-        throw new NotImplementedException();
-    }  
 }
