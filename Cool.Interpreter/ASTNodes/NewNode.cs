@@ -1,18 +1,18 @@
 namespace Cool.Interpreter.ASTNodes;
 
-public class NewNode(ParserRuleContext context) : ExpressionNode(context)
+public class NewNode(string typeName, ParserRuleContext? context = null) : ExpressionNode(context)
 {
-    public IdNode TypeName { get; set; }
+    private readonly IdNode _typeIdNode = new(typeName, context);
 
     public override object? Execute(RuntimeEnvironment env)
     {
-        var className = TypeName.Name;
+        var className = _typeIdNode.Name;
         // For now, just return the class node itself
         return env.LookupClass(className) ?? throw new Exception($"Cannot instantiate undefined class {className} at line {Line}, column {Column}");         
     }
 
     public override string ToString()
     {
-        return $"{GetIndentation()}new {TypeName.Name}";
+        return $"{GetIndentation()}new {_typeIdNode.Name}";
     }
 }

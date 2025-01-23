@@ -1,6 +1,6 @@
 namespace Cool.Interpreter.ASTNodes.BinaryOperationNodes;
 
-public abstract class BinaryOperationNode(ParserRuleContext? context, ExpressionNode leftOperand, ExpressionNode rightOperand) : ExpressionNode(context)
+public abstract class BinaryOperationNode(ExpressionNode leftOperand, ExpressionNode rightOperand, ParserRuleContext? context = null) : ExpressionNode(context)
 {
     protected readonly ExpressionNode _leftOperand = leftOperand;
     protected readonly ExpressionNode _rightOperand = rightOperand;

@@ -1,11 +1,7 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class FormalNode : AstNode
+public class FormalNode(ParserRuleContext context) : AstNode(context)
 {
-    public FormalNode(ParserRuleContext context) : base(context)
-    {
-    }
-    
     public override object? Execute(RuntimeEnvironment env)
     {
         throw new NotImplementedException();

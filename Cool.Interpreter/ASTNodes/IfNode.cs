@@ -1,6 +1,6 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class IfNode(ParserRuleContext context, ExpressionNode condition, ExpressionNode thenBranch, ExpressionNode? elseBranch) : ExpressionNode(context)
+public class IfNode(ExpressionNode condition, ExpressionNode thenBranch, ExpressionNode? elseBranch, ParserRuleContext? context = null) : ExpressionNode(context)
 {
     private ExpressionNode _condition = condition;
     private ExpressionNode _thenBranch = thenBranch;

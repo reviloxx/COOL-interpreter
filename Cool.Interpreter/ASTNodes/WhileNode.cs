@@ -1,22 +1,16 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class WhileNode(ParserRuleContext context) : ExpressionNode(context)
+public class WhileNode(ExpressionNode condition, ExpressionNode body, ParserRuleContext? context = null) : ExpressionNode(context)
 {
-    public ExpressionNode? Condition { get; set; }
-    public ExpressionNode? Body { get; set; }
+    private readonly ExpressionNode _condition = condition;
+    private readonly ExpressionNode? _body = body;
 
     public override object? Execute(RuntimeEnvironment env)
-    {
-        // TODO scope here?
-        // if (Body is BlockSequenceNode blockNode)
-        // {
-            // blockNode.CreateNewScope = false;
-        // }
-        
+    {        
         object? result = null;
         while (true)
         {
-            var conditionResult = Condition?.Execute(env);
+            var conditionResult = _condition.Execute(env);
         
             // Handle numeric comparisons
             if (conditionResult is bool boolResult)
@@ -33,13 +27,13 @@ public class WhileNode(ParserRuleContext context) : ExpressionNode(context)
                 throw new Exception($"Invalid condition result type: {conditionResult?.GetType()}");
             }
         
-            result = Body?.Execute(env);
+            result = _body?.Execute(env);
         }
         return result;
     }
 
     public override string ToString()
     {
-        return $"{GetIndentation()}while {Condition} loop\n{Body}\n{GetIndentation()}pool";
+        return $"{GetIndentation()}while {_condition} loop\n{_body}\n{GetIndentation()}pool";
     }
 }

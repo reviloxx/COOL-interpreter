@@ -1,9 +1,9 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class LetInNode(ParserRuleContext context) : ExpressionNode(context)
+public class LetInNode(IEnumerable<PropertyNode> declarations, ExpressionNode? body, ParserRuleContext? context) : ExpressionNode(context)
 {
-    public List<PropertyNode> Declarations { get; set; } = new();
-    public ExpressionNode? Body { get; set; }
+    private readonly IEnumerable<PropertyNode> _declarations = declarations;
+    private readonly ExpressionNode? _body = body;
 
     public override object? Execute(RuntimeEnvironment env)
     {
@@ -13,7 +13,7 @@ public class LetInNode(ParserRuleContext context) : ExpressionNode(context)
         try
         {
             // Define variables in the current scope
-            foreach (var declaration in Declarations)
+            foreach (var declaration in _declarations)
             {
                 object? initialValue = null;
         
@@ -24,11 +24,11 @@ public class LetInNode(ParserRuleContext context) : ExpressionNode(context)
                 }
         
                 // Define the variable in the current scope
-                env.DefineVariable(declaration.FeatureName.Name, initialValue);
+                env.DefineVariable(declaration.FeatureName, initialValue);
             }
         
             // Execute the body expression
-            return Body?.Execute(env);
+            return _body?.Execute(env);
         }
         finally
         {
@@ -43,15 +43,15 @@ public class LetInNode(ParserRuleContext context) : ExpressionNode(context)
         sb.AppendLine($"{GetIndentation()}Let {{");
         
         IncreaseIndent();
-        foreach (var declaration in Declarations)
+        foreach (var declaration in _declarations)
         {
             sb.AppendLine(declaration.ToString());
         }
         
-        if (Body != null)
+        if (_body != null)
         {
             sb.AppendLine("In:");
-            sb.Append(Body.ToString());
+            sb.Append(_body.ToString());
         }
         DecreaseIndent();
         

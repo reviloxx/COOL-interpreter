@@ -1,6 +1,7 @@
 class Main inherits IO {
     main() : SELF_TYPE {
         {
+            out_string("bla");
             math <- new Math;
             
             out_string("is math.modulo(4, 2) = 0? --> ");

@@ -1,6 +1,6 @@
 namespace Cool.Interpreter.ASTNodes.BinaryOperationNodes;
 
-public class MulNode(ParserRuleContext? context, ExpressionNode leftOperand, ExpressionNode rightOperand) : BinaryOperationNode(context, leftOperand, rightOperand)
+public class MulNode(ExpressionNode leftOperand, ExpressionNode rightOperand, ParserRuleContext? context = null) : BinaryOperationNode(leftOperand, rightOperand, context)
 {
     public override string Symbol => "*";
 

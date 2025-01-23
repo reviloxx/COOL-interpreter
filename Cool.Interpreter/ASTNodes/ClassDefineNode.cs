@@ -1,26 +1,29 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
 
-public class ClassDefineNode(ParserRuleContext? context, string className, string? baseClassName) : AstNode(context)
+public class ClassDefineNode(string className, string? baseClassName = null, ParserRuleContext? context = null) : AstNode(context)
 {
     public string ClassName => _classIdNode.Name;
     public string? BaseClassName => _baseClassIdNode?.Name;
 
     private readonly IdNode _classIdNode = new(className, context);
     private readonly IdNode? _baseClassIdNode = baseClassName == null ? null : new(baseClassName, context);
-    private Dictionary<string, MethodNode> _methods { get; } = [];
+    private Dictionary<string, MethodNode> _methods = [];    
     private Dictionary<string, PropertyNode> _properties { get; } = [];
 
-    public void AddFeature(FeatureNode feature)
+    public void AddFeatures(IEnumerable<FeatureNode> features)
     {
-        if (feature is MethodNode method)
+        foreach (var feature in features)
         {
-            _methods[method.FeatureName.Name.ToUpperInvariant()] = method;
-        }
-        else if (feature is PropertyNode property)
-        {
-            _properties[property.FeatureName.Name.ToUpperInvariant()] = property;
-        }
+            if (feature is MethodNode method)
+            {
+                _methods[method.FeatureName.ToUpperInvariant()] = method;
+            }
+            else if (feature is PropertyNode property)
+            {
+                _properties[property.FeatureName.ToUpperInvariant()] = property;
+            }
+        }        
     }
         
     public MethodNode? GetMethod(string name)

@@ -1,26 +1,20 @@
 ﻿namespace Cool.Interpreter.ASTNodes;
 
-public class ProgramNode(ParserRuleContext context) : AstNode(context)
+public class ProgramNode(IEnumerable<ClassDefineNode> classDefineNodes, ParserRuleContext? context) : AstNode(context)
 {
-    public List<ClassDefineNode?> ClassDefineNodes = new();
-
-    // public void Accept(ICoolGrammarVisitor<ASTNodes> visitor)
-    // {
-    // visitor.Visit(this);
-    // }
+    private readonly IEnumerable<ClassDefineNode> _classDefineNodes = classDefineNodes;
 
     public override object? Execute(RuntimeEnvironment env)
-    {
-        
+    {        
         // Make sure to register all classes in the runtime env
-        foreach (var classDefineNode in ClassDefineNodes)
+        foreach (var classDefineNode in _classDefineNodes)
         {
           env.RegisterClass(classDefineNode);   
         } 
         
         // Find the main Class
-        var mainClass = ClassDefineNodes
-            .FirstOrDefault(c => c?.ClassName.Equals("Main", StringComparison.OrdinalIgnoreCase) == true);
+        var mainClass = _classDefineNodes
+            .FirstOrDefault(c => c.ClassName.Equals("Main", StringComparison.OrdinalIgnoreCase) == true);
 
         if (mainClass != null)
         {
@@ -40,11 +34,11 @@ public class ProgramNode(ParserRuleContext context) : AstNode(context)
         sb.AppendLine($"{GetIndentation()}Program");
         
         IncreaseIndent();
-        foreach (var classNode in ClassDefineNodes)
+        foreach (var classDefineNode in _classDefineNodes)
         {
-            if (classNode != null)
+            if (classDefineNode != null)
             {
-                sb.AppendLine(classNode.ToString());
+                sb.AppendLine(classDefineNode.ToString());
             }
         }
         DecreaseIndent();
