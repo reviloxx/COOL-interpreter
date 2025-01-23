@@ -42,7 +42,7 @@ class Main inherits IO {
         {
             math <- new Math;
             i <- 2;
-            countUntil <- 10
+            countUntil <- in_int()
             out_string("We count until: ")
             out_intln(countUntil)
             
