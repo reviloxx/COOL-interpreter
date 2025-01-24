@@ -211,6 +211,19 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return new NegativeNode(expression, context);
     }
 
+    public override IfNode VisitIf([NotNull] IfContext context)
+    {
+        if (Visit(context.expression(0)) is not ExpressionNode condition)
+            throw new InvalidOperationException($"Condition expression visit returned null for {context.expression(0).GetText()}");
+
+        if (Visit(context.expression(1)) is not ExpressionNode thenBranch)
+            throw new InvalidOperationException($"Then branch expression visit returned null for {context.expression(1).GetText()}");
+
+        var elseBranch = context.expression(2) != null ? Visit(context.expression(2)) as ExpressionNode : null;
+
+        return new IfNode(condition, thenBranch, elseBranch, context);
+    }
+
     public override CaseNode? VisitCase([NotNull] CaseContext context)
     {
         //TODO AUFBAU LAUT COOL: CASE expression OF (formal IMPLY expression ';')+ ESAC  
@@ -234,6 +247,4 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         // return new CaseNode(caseExpression, branches, context);
         return caseNode;
     }
-
-
 }
