@@ -5,6 +5,27 @@ namespace UnitTests;
 
 public abstract class VisitorTestsBase
 {
+    private StringWriterMock _stringWriterMock;
+
+    [SetUp]
+    public void Initialize()
+    {
+        _stringWriterMock = new StringWriterMock();
+        Console.SetOut(_stringWriterMock);
+    }
+
+    [TearDown]
+    public void Cleanup()
+    {
+        _stringWriterMock.ClearWrittenLines();
+    }
+
+    protected bool ValidateOutput(List<string> expected)
+    {
+        return _stringWriterMock.WrittenLines.SequenceEqual(expected);
+    }
+
+
     protected ProgramContext GetProgramContext(string fileName)
     {
         var streamReader = new StreamReader(fileName);

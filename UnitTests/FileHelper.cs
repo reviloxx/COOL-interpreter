@@ -2,7 +2,7 @@
 
 public static class FileHelper
 {
-    public static string GetFile(TestType testType, string testName)
+    public static string GetFileMoodle(TestType testType, string testName)
     {
         var file = testType switch
         {
@@ -20,7 +20,19 @@ public static class FileHelper
 
         return file;
     }
+
+    public static string GetFile(string testName)
+    {
+        var file = Path.Combine(Environment.CurrentDirectory, "TestCases", testName);
+
+        if (!File.Exists(file))
+            throw new FileNotFoundException("Test case not found!", file);
+
+        return file;
+    }
+
 }
+
 
 public enum TestType
 {
