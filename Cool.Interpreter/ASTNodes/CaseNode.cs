@@ -1,85 +1,56 @@
-﻿namespace Cool.Interpreter.ASTNodes
-{
-    /// <summary>
-    /// Represents one branch in a case expression:
-    ///   id : Type => expression
-    /// </summary>
-    public record CaseBranch(string Id, string TypeName, ExpressionNode Expression);
+﻿using Antlr4.Runtime;
+using System.Collections.Generic;
+using System.Text;
 
-    /// <summary>
-    /// Represents a 'case' expression in COOL, which has the form:
-    ///   case expr0 of
-    ///       id1 : Type1 => expr1;
-    ///       id2 : Type2 => expr2;
-    ///       ...
-    ///   esac
-    /// </summary>
+namespace Cool.Interpreter.ASTNodes
+{
     public class CaseNode : ExpressionNode
     {
-        private readonly ExpressionNode _scrutinee;         // The expression we're "switching" on
-        private readonly List<CaseBranch> _branches;        // All the branches
+        public ExpressionNode CaseExpression { get; }  // Ausdruck für das case-Statement
+        public List<ExpressionNode> CaseBranches { get; }  // Liste der Zweige
 
-        public CaseNode(
-            ExpressionNode scrutinee,
-            List<CaseBranch> branches,
-            ParserRuleContext? context = null)
+        public CaseNode(ExpressionNode expression, List<ExpressionNode> caseBranches, ParserRuleContext? context = null)
             : base(context)
         {
-            _scrutinee = scrutinee;
-            _branches = branches;
+            CaseExpression = expression;
+            CaseBranches = caseBranches;
         }
 
-        //public override object? Execute(RuntimeEnvironment env)
-        //{
-        //    // 1. Evaluate the main expression (the scrutinee).
-        //    var value = _scrutinee.Execute(env);
+        public override object? Execute(RuntimeEnvironment env)
+        {
+           
+            var value = CaseExpression.Execute(env);
+            if (value == null)
+            {
+                throw new InvalidOperationException("Runtime error: case expression is void.");
+            }
 
-        //    // 2. Determine its runtime COOL type. (In a real interpreter,
-        //    //    you'd have your own representation of COOL types,
-        //    //    not just .NET's System.Type.)
-        //    string runtimeTypeName = env.GetCoolType(value);
-        //    // For example, if you store an internal type string
-        //    // like "Int", "Bool", "String", "MyClass", etc.
+            foreach (var expression in CaseBranches)
+            {
 
-        //    // 3. Find the first branch that is a supertype or matching type.
-        //    foreach (var branch in _branches)
-        //    {
-        //        // In COOL, we check if runtimeTypeName <= branch.TypeName
-        //        // in terms of the class hierarchy. That is, if the value's
-        //        // type is a subtype of the branch type.
-        //        if (env.IsSubtype(runtimeTypeName, branch.TypeName))
-        //        {
-        //            // 4. Introduce a new scope so we can bind the branch id.
-        //            env.PushScope();
+                // if (CaseExpression === expression)
+                // {
+                    // value = expression.Execute(env);
+                // }
+                //TODO irgendwas hier noch machen
+                // if (env.IsInstanceOf(value, formal.Type))  // Annahme: FormalNode enthält Typ-Information
+                // {
+                return Execute(env);
+                // }
+            }
 
-        //            // 5. Bind the branch variable to the scrutinee's value.
-        //            env.DeclareVariable(branch.Id, value);
-
-        //            // 6. Execute the branch’s expression.
-        //            object? result = branch.Expression.Execute(env);
-
-        //            // Cleanup: leave the new scope
-        //            env.PopScope();
-
-        //            // Return the result of this branch.
-        //            return result;
-        //        }
-        //    }
-
-        //    // If no branch matches, COOL specifies a runtime error.
-        //    throw new Exception("No suitable case branch found at runtime.");
-        //}
+            throw new InvalidOperationException("No matching case branch found.");
+        }
 
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"{GetIndentation()}case {_scrutinee} of");
-            foreach (var branch in _branches)
+            sb.AppendLine($"case {CaseExpression} of");
+            foreach (var expression in CaseBranches)
             {
-                sb.AppendLine(
-                    $"{GetIndentation()}  {branch.Id} : {branch.TypeName} => {branch.Expression};");
+                sb.AppendLine($"  {expression};");
             }
-            sb.Append($"{GetIndentation()}esac");
+            sb.Append("esac");
             return sb.ToString();
         }
     }
