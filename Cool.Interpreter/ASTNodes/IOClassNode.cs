@@ -4,46 +4,39 @@ public class IOClassNode : ClassDefineNode
 {
     public IOClassNode() : base("IO") // no context since this is built-in
     {
-        static object? write(RuntimeEnvironment env, List<object?> args)
+        static object? Write(RuntimeEnvironment env, List<object?> args)
         {
-            if (args.Count > 0 && args[0] != null)
-            {
-                Console.Write(args[0]!.ToString());
-            }
+            Console.Write(args.FirstOrDefault()?.ToString());
             return env.LookupVariable("self");
         }
 
-        static object? writeLine(RuntimeEnvironment env, List<object?> args)
+        static object? WriteLine(RuntimeEnvironment env, List<object?> args)
         {
-            if (args.Count > 0 && args[0] != null)
-            {
-                Console.WriteLine(args[0]!.ToString());
-            }
+            Console.WriteLine(args.FirstOrDefault()?.ToString());
             return env.LookupVariable("self");
         }
 
-        static object? readString(RuntimeEnvironment env, List<object?> args)
+        static object? ReadString(RuntimeEnvironment env, List<object?> args)
         {
             return Console.ReadLine();
         }
 
-        static object? readInt(RuntimeEnvironment env, List<object?> args)
+        static object? ReadInt(RuntimeEnvironment env, List<object?> args)
         {
-            if (int.TryParse(Console.ReadLine(), out int value))
-                return value;
-
-            else
+            if (!int.TryParse(Console.ReadLine(), out int value))
                 throw new Exception();
+
+            return value;                
         }
 
         AddFeatures(
         [
-            new BuiltInMethodNode("out_string", [new ParameterNode("x", new TypeNode("String"))], new TypeNode("SELF_TYPE"), write),
-            new BuiltInMethodNode("out_int", [new ParameterNode("x", new TypeNode("Int"))], new TypeNode("SELF_TYPE"), write),
-            new BuiltInMethodNode("out_stringln", [new ParameterNode("x", new TypeNode("String"))], new TypeNode("SELF_TYPE"), writeLine),
-            new BuiltInMethodNode("out_intln", [new ParameterNode("x", new TypeNode("Int"))], new TypeNode("SELF_TYPE"), writeLine),
-            new BuiltInMethodNode("in_string", [], new TypeNode("String"), readString),
-            new BuiltInMethodNode("in_int", [], new TypeNode("Int"), readInt)
+            new BuiltInMethodNode("out_string", [new ParameterNode("x", new TypeNode("String"))], new TypeNode("SELF_TYPE"), Write),
+            new BuiltInMethodNode("out_int", [new ParameterNode("x", new TypeNode("Int"))], new TypeNode("SELF_TYPE"), Write),
+            new BuiltInMethodNode("out_stringln", [new ParameterNode("x", new TypeNode("String"))], new TypeNode("SELF_TYPE"), WriteLine),
+            new BuiltInMethodNode("out_intln", [new ParameterNode("x", new TypeNode("Int"))], new TypeNode("SELF_TYPE"), WriteLine),
+            new BuiltInMethodNode("in_string", [], new TypeNode("String"), ReadString),
+            new BuiltInMethodNode("in_int", [], new TypeNode("Int"), ReadInt)
         ]);
     }
 }

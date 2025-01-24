@@ -26,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="case.cl">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="prime.cl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

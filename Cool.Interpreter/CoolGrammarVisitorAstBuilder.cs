@@ -219,7 +219,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         if (Visit(context.expression(1)) is not ExpressionNode thenBranch)
             throw new InvalidOperationException($"Then branch expression visit returned null for {context.expression(1).GetText()}");
 
-        var elseBranch = Visit(context.expression(2)) as ExpressionNode;
+        var elseBranch = context.expression(2) != null ? Visit(context.expression(2)) as ExpressionNode : null;
 
         return new IfNode(condition, thenBranch, elseBranch, context);
     }
