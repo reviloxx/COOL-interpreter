@@ -213,11 +213,16 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override CaseNode? VisitCase([NotNull] CaseContext context)
     {
+        //TODO AUFBAU LAUT COOL: CASE expression OF (formal IMPLY expression ';')+ ESAC  
+        // D.h. ich habe case EXPRESSION of EXPRESSION+ esac - also 2 expressions
+        // und die zweite expression besteht wiederum aus formal und expression
+        // kA wie es daher weitergehen müsste oder ob das für den execute reicht?
+        
         // Die Expression für das case-Statement
         var caseExpression = Visit(context.expression(0)) as ExpressionNode 
                              ?? throw new InvalidOperationException("Case expression is null.");
 
-        // Branches parsen und FormalNode für ID und Typ verwenden
+        // Die zweite Expression(s)+ ermitteln die formal und expression beinhaltet
         var caseBranches = new List<ExpressionNode?>();
 
         for (int i = 1; i < context.expression().Length; i++)
@@ -225,7 +230,6 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
             caseBranches.Add(Visit(context.expression(i)) as ExpressionNode);
 
         }
-//TODO irgendwas hier noch machen denk ich
         CaseNode? caseNode = new CaseNode(caseExpression, caseBranches);
         // return new CaseNode(caseExpression, branches, context);
         return caseNode;
