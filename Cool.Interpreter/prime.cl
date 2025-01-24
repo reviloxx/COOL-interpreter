@@ -8,11 +8,11 @@ class Main inherits IO {
                 while j < n loop {
                     if math.modulo(n, j) = 0 then {
                         isPrime <- false;
-                    };
+                    } else { isPrime <- true; } fi;
                     j <- j + 1;
                 } pool;
 
-                if isPrime then out_intln(n);
+                if isPrime then out_intln(n) else { self; } fi;
 
                 self;
             } fi;
