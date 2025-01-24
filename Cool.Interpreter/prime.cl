@@ -8,7 +8,7 @@ class Main inherits IO {
                 while j < n loop {
                     if math.modulo(n, j) = 0 then {
                         isPrime <- false;
-                    } else { isPrime <- true; } fi;
+                    } else { 1; } fi;
                     j <- j + 1;
                 } pool;
 

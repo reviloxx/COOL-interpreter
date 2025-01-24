@@ -28,10 +28,14 @@ namespace Cool.Interpreter.ASTNodes
             foreach (var expression in CaseBranches)
             {
 
-                // if (CaseExpression === expression)
-                // {
-                    // value = expression.Execute(env);
-                // }
+                if (CaseExpression == expression)
+                {
+                    value = expression.Execute(env);
+                }
+                else
+                {
+                    Console.WriteLine("Runtime error: case expression is case.");
+                }
                 //TODO irgendwas hier noch machen
                 // if (env.IsInstanceOf(value, formal.Type))  // Annahme: FormalNode enthält Typ-Information
                 // {

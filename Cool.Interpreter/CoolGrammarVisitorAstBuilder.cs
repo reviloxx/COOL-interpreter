@@ -226,7 +226,8 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
     public override CaseNode? VisitCase([NotNull] CaseContext context)
     {
-        //TODO AUFBAU LAUT COOL: CASE expression OF (formal IMPLY expression ';')+ ESAC  
+        //TODO
+        //AUFBAU LAUT COOL: CASE expression OF (formal IMPLY expression ';')+ ESAC  
         // D.h. ich habe case EXPRESSION of EXPRESSION+ esac - also 2 expressions
         // und die zweite expression besteht wiederum aus formal und expression
         // kA wie es daher weitergehen müsste oder ob das für den execute reicht?
@@ -244,7 +245,6 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
 
         }
         CaseNode? caseNode = new CaseNode(caseExpression, caseBranches);
-        // return new CaseNode(caseExpression, branches, context);
         return caseNode;
     }
 }
