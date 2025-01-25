@@ -12,13 +12,7 @@ public class CaseNode(ExpressionNode caseEpression, List<Tuple<ParameterNode, Ex
 
         foreach (var branch in _caseBranches)
         {
-            if (valueType == typeof(int) && branch.Item1.TypeName == "Int")
-            {
-                env.DefineVariable(branch.Item1.ParameterName, value);
-                return branch.Item2.Execute(env);
-            }
-
-            if (valueType == typeof(string) && branch.Item1.TypeName == "String")
+            if (IsMatchingType(valueType, branch.Item1.TypeName))
             {
                 env.DefineVariable(branch.Item1.ParameterName, value);
                 return branch.Item2.Execute(env);
@@ -38,5 +32,11 @@ public class CaseNode(ExpressionNode caseEpression, List<Tuple<ParameterNode, Ex
         }
         sb.Append("esac");
         return sb.ToString();
+    }
+
+    private bool IsMatchingType(Type valueType, string typeName)
+    {
+        return (valueType == typeof(int) && typeName == "Int") ||
+               (valueType == typeof(string) && typeName == "String");
     }
 }
