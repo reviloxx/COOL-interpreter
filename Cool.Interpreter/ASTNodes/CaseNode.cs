@@ -1,61 +1,42 @@
-﻿using Antlr4.Runtime;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Cool.Interpreter.ASTNodes;
 
-namespace Cool.Interpreter.ASTNodes
+public class CaseNode(ExpressionNode caseEpression, List<Tuple<ParameterNode, ExpressionNode>> caseBranches, ParserRuleContext? context = null) : ExpressionNode(context)
 {
-    public class CaseNode : ExpressionNode
+    private ExpressionNode _caseExpression = caseEpression;
+    private List<Tuple<ParameterNode, ExpressionNode>> _caseBranches = caseBranches;
+
+    public override object? Execute(RuntimeEnvironment env)
+    {           
+        var value = _caseExpression.Execute(env) ?? throw new InvalidOperationException("Runtime error: case expression is void.");
+        var valueType = value.GetType();
+
+        foreach (var branch in _caseBranches)
+        {
+            if (valueType == typeof(int) && branch.Item1.TypeName == "Int")
+            {
+                env.DefineVariable(branch.Item1.ParameterName, value);
+                return branch.Item2.Execute(env);
+            }
+
+            if (valueType == typeof(string) && branch.Item1.TypeName == "String")
+            {
+                env.DefineVariable(branch.Item1.ParameterName, value);
+                return branch.Item2.Execute(env);
+            }
+        }
+
+        throw new InvalidOperationException("No matching case branch found.");
+    }
+
+    public override string ToString()
     {
-        public ExpressionNode CaseExpression { get; }  // Ausdruck für das case-Statement
-        public List<ExpressionNode> CaseBranches { get; }  // Liste der Zweige
-
-        public CaseNode(ExpressionNode expression, List<ExpressionNode> caseBranches, ParserRuleContext? context = null)
-            : base(context)
+        var sb = new StringBuilder();
+        sb.AppendLine($"case {_caseExpression} of");
+        foreach (var expression in _caseBranches)
         {
-            CaseExpression = expression;
-            CaseBranches = caseBranches;
+            sb.AppendLine($"  {expression};");
         }
-
-        public override object? Execute(RuntimeEnvironment env)
-        {
-           
-            var value = CaseExpression.Execute(env);
-            if (value == null)
-            {
-                throw new InvalidOperationException("Runtime error: case expression is void.");
-            }
-
-            foreach (var expression in CaseBranches)
-            {
-
-                if (CaseExpression == expression)
-                {
-                    value = expression.Execute(env);
-                }
-                else
-                {
-                    Console.WriteLine("Runtime error: case expression is case.");
-                }
-                //TODO irgendwas hier noch machen
-                // if (env.IsInstanceOf(value, formal.Type))  // Annahme: FormalNode enthält Typ-Information
-                // {
-                return Execute(env);
-                // }
-            }
-
-            throw new InvalidOperationException("No matching case branch found.");
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"case {CaseExpression} of");
-            foreach (var expression in CaseBranches)
-            {
-                sb.AppendLine($"  {expression};");
-            }
-            sb.Append("esac");
-            return sb.ToString();
-        }
+        sb.Append("esac");
+        return sb.ToString();
     }
 }

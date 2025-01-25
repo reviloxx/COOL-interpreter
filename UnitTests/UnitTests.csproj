@@ -133,7 +133,10 @@
     <None Update="TestCases\Algorithm\success\test.cl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TestCases\case.cl">
+    <None Update="TestCases\caseString.cl">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestCases\caseInt.cl">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="TestCases\Parsing\fail\all_else_true.cl">

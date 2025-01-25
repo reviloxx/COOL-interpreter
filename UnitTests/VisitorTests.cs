@@ -52,14 +52,14 @@ public class VisitorTests : VisitorTestsBase
     }
 
     [Test]
-    public void Case()
+    public void CaseInt()
     {
-        var file = FileHelper.GetFile("case.cl");
+        var file = FileHelper.GetFile("caseInt.cl");
         var context = GetProgramContext(file);
 
         List<string> expectedOutput =
         [
-            "Value is five."
+            "52"
         ];
 
         Assert.DoesNotThrow(() =>
@@ -71,6 +71,23 @@ public class VisitorTests : VisitorTestsBase
         Assert.That(ValidateOutput(expectedOutput), Is.True);
     }
 
+    [Test]
+    public void CaseString()
+    {
+        var file = FileHelper.GetFile("caseString.cl");
+        var context = GetProgramContext(file);
 
-    
+        List<string> expectedOutput =
+        [
+            "Hello World!"
+        ];
+
+        Assert.DoesNotThrow(() =>
+        {
+            var rootNode = GetRootNode(context);
+            Execute(rootNode);
+        });
+
+        Assert.That(ValidateOutput(expectedOutput), Is.True);
+    }
 }

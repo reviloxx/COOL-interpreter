@@ -29,34 +29,8 @@ public class ClassDefineNode(string className, string? baseClassName = null, Par
     public MethodNode? GetMethod(string name)
     {
         return _methods.TryGetValue(name.ToUpperInvariant(), out var method) ? method : null;
-    }        
-        
-    public override string ToString()
-    {
-        var sb = new StringBuilder();
-        sb.Append($"{GetIndentation()}Class {ClassName}");
-        
-        if (BaseClassName != null)
-        {
-            sb.Append($" inherits {BaseClassName}");
-        }
-        sb.AppendLine();
-        
-        IncreaseIndent();
-        foreach (var method in _methods)
-        {
-            sb.AppendLine(method.ToString());
-        }
-        foreach (var property in _properties)
-        {
-            sb.AppendLine(property.ToString());
-        }
-                
-        DecreaseIndent();
-        
-        return sb.ToString();
     }
-        
+            
     public override object? Execute(RuntimeEnvironment env)
     {
         // Find and execute the main method if this is the Main class
@@ -70,5 +44,31 @@ public class ClassDefineNode(string className, string? baseClassName = null, Par
         }
 
         return null;
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"{GetIndentation()}Class {ClassName}");
+
+        if (BaseClassName != null)
+        {
+            sb.Append($" inherits {BaseClassName}");
+        }
+        sb.AppendLine();
+
+        IncreaseIndent();
+        foreach (var method in _methods)
+        {
+            sb.AppendLine(method.ToString());
+        }
+        foreach (var property in _properties)
+        {
+            sb.AppendLine(property.ToString());
+        }
+
+        DecreaseIndent();
+
+        return sb.ToString();
     }
 }

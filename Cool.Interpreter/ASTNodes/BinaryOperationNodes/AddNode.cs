@@ -21,6 +21,6 @@ public class AddNode(ExpressionNode leftOperand, ExpressionNode rightOperand, Pa
             return leftStr + rightStr;
         }
 
-        throw new Exception($"Type error: '+' operation expects either two Ints or two Strings but got {leftValue?.GetType().Name} and {rightValue?.GetType().Name} at line {Line}, column {Column}");
+        throw new Exception($"Type error: '+' operation expects either two Ints or two Strings but got {leftValue?.GetType().Name} and {rightValue?.GetType().Name} at line {_line}, column {_column}");
     }
 }

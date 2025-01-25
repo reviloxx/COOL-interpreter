@@ -105,7 +105,7 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
     {
         var value = context.STRING().GetText().Trim('"'); // Remove the surrounding quotes from the parsed string
         return new StringNode(value, context);
-    }    
+    }
 
     public override BinaryOperationNode VisitArithmetic([NotNull] ArithmeticContext context)
     {
@@ -224,27 +224,20 @@ public class CoolGrammarVisitorAstBuilder : CoolGrammarBaseVisitor<object?>
         return new IfNode(condition, thenBranch, elseBranch, context);
     }
 
-    public override CaseNode? VisitCase([NotNull] CaseContext context)
+    public override CaseNode VisitCase([NotNull] CaseContext context)
     {
-        //TODO
-        //AUFBAU LAUT COOL: CASE expression OF (formal IMPLY expression ';')+ ESAC  
-        // D.h. ich habe case EXPRESSION of EXPRESSION+ esac - also 2 expressions
-        // und die zweite expression besteht wiederum aus formal und expression
-        // kA wie es daher weitergehen müsste oder ob das für den execute reicht?
-        
-        // Die Expression für das case-Statement
         var caseExpression = Visit(context.expression(0)) as ExpressionNode 
                              ?? throw new InvalidOperationException("Case expression is null.");
 
-        // Die zweite Expression(s)+ ermitteln die formal und expression beinhaltet
-        var caseBranches = new List<ExpressionNode?>();
+        var caseBranches = new List<Tuple<ParameterNode, ExpressionNode>>();
+        var branchParameters = context.formal().Select(VisitFormal);        
 
         for (int i = 1; i < context.expression().Length; i++)
         {
-            caseBranches.Add(Visit(context.expression(i)) as ExpressionNode);
-
+            var branchExpression = Visit(context.expression(i)) as ExpressionNode ?? throw new InvalidOperationException("Branch expression is null.");
+            caseBranches.Add(new Tuple<ParameterNode, ExpressionNode>(branchParameters.ElementAt(i-1), branchExpression));
         }
-        CaseNode? caseNode = new CaseNode(caseExpression, caseBranches);
-        return caseNode;
+
+        return new CaseNode(caseExpression, caseBranches);
     }
 }

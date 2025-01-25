@@ -8,7 +8,7 @@ public class RuntimeEnvironment
     private Dictionary<string, ClassDefineNode> Classes { get; } = new();
     
     // Track current scope for variable lookup
-    private Stack<Dictionary<string, object>> ScopeStack { get; } = new();
+    private Stack<Dictionary<string, object?>> ScopeStack { get; } = new();
 
 
     public RuntimeEnvironment()
@@ -34,7 +34,7 @@ public class RuntimeEnvironment
     
     public void PushScope()
     {
-        ScopeStack.Push(new Dictionary<string, object>());
+        ScopeStack.Push([]);
     }
     
     public void PopScope()

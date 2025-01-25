@@ -8,7 +8,7 @@ public class NewNode(string typeName, ParserRuleContext? context = null) : Expre
     {
         var className = _typeIdNode.Name;
         // For now, just return the class node itself
-        return env.LookupClass(className) ?? throw new Exception($"Cannot instantiate undefined class {className} at line {Line}, column {Column}");         
+        return env.LookupClass(className) ?? throw new Exception($"Cannot instantiate undefined class {className} at line {_line}, column {_column}");         
     }
 
     public override string ToString()

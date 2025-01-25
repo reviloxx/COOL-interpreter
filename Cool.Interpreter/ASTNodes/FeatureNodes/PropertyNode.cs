@@ -3,11 +3,11 @@
 public class PropertyNode(string propertyName, TypeNode propertyType, ExpressionNode? initialValue = null, ParserRuleContext? context = null) : FeatureNode(propertyName, context)
 {
     private readonly TypeNode _propertyType = propertyType;
-    public ExpressionNode? InitialValue { get; private set; } = initialValue;
+    private readonly ExpressionNode? _initialValue = initialValue;
 
     public override object? Execute(RuntimeEnvironment env)
     {
-        throw new NotImplementedException();
+        return _initialValue?.Execute(env);
     }
 
     public override string ToString()
@@ -15,11 +15,11 @@ public class PropertyNode(string propertyName, TypeNode propertyType, Expression
         var sb = new StringBuilder();
         sb.Append($"{GetIndentation()}Property {_featureIdNode} : {_propertyType}");
         
-        if (InitialValue != null)
+        if (_initialValue != null)
         {
             sb.AppendLine(" =");
             IncreaseIndent();
-            sb.Append(InitialValue.ToString());
+            sb.Append(_initialValue.ToString());
             DecreaseIndent();
         }
         

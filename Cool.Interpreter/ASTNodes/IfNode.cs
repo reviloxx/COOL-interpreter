@@ -2,9 +2,9 @@
 
 public class IfNode(ExpressionNode condition, ExpressionNode thenBranch, ExpressionNode? elseBranch, ParserRuleContext? context = null) : ExpressionNode(context)
 {
-    private ExpressionNode _condition = condition;
-    private ExpressionNode _thenBranch = thenBranch;
-    private ExpressionNode? _elseBranch = elseBranch;
+    private readonly ExpressionNode _condition = condition;
+    private readonly ExpressionNode _thenBranch = thenBranch;
+    private readonly ExpressionNode? _elseBranch = elseBranch;
 
     public override object? Execute(RuntimeEnvironment env)
     {

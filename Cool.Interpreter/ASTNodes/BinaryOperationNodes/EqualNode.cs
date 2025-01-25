@@ -7,26 +7,21 @@ public class EqualNode(ExpressionNode leftOperand, ExpressionNode rightOperand, 
     public override object? Execute(RuntimeEnvironment env)
     {
         // Execute the operands and check for null values
-        object? LeftValue = _leftOperand?.Execute(env);
-        object? RightValue = _rightOperand?.Execute(env);
+        object? leftValue = _leftOperand?.Execute(env);
+        object? rightValue = _rightOperand?.Execute(env);
 
-        if (LeftValue == null || RightValue == null)
-        {
-            throw new ArgumentNullException("Operands must not be null.");
-        }
-        else if (LeftValue is int leftInt && RightValue is int rightInt)
-        {
+        if (leftValue == null || rightValue == null)
+            throw new Exception("Operands must not be null.");
+
+        if (leftValue is int leftInt && rightValue is int rightInt)
             return leftInt == rightInt;
-        }
-        else if (LeftValue is string leftStr && RightValue is string rightStr)
-        {
-            return leftStr == rightStr;
-        }
-        else if (LeftValue is bool leftBool && RightValue is bool rightBool)
-        {
-            return leftBool == rightBool;
-        }
 
-        throw new InvalidCastException($"Invalid operand types: {LeftValue.GetType()} and {RightValue.GetType()}");
+        if (leftValue is string leftStr && rightValue is string rightStr)
+            return leftStr == rightStr;
+
+        if (leftValue is bool leftBool && rightValue is bool rightBool)
+            return leftBool == rightBool;
+
+        throw new InvalidCastException($"Invalid operand types: {leftValue.GetType()} and {rightValue.GetType()}");
     }
 }

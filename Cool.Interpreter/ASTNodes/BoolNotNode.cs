@@ -16,7 +16,7 @@ public class BoolNotNode(ExpressionNode operand, ParserRuleContext? context) : U
             return !boolValue;  // Return the logical NOT
         }
 
-        throw new Exception($"Type error: NOT operation expects a Bool but got {operandValue?.GetType().Name} at line {Line}, column {Column}");
+        throw new Exception($"Type error: NOT operation expects a Bool but got {operandValue?.GetType().Name} at line {_line}, column {_column}");
     }
 
     public override string ToString()

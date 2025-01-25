@@ -15,13 +15,7 @@ public class LetInNode(IEnumerable<PropertyNode> declarations, ExpressionNode? b
             // Define variables in the current scope
             foreach (var declaration in _declarations)
             {
-                object? initialValue = null;
-        
-                // If the property has an initializer, execute it
-                if (declaration.InitialValue != null)
-                {
-                    initialValue = declaration.InitialValue.Execute(env);
-                }
+                var initialValue = declaration.Execute(env);
         
                 // Define the variable in the current scope
                 env.DefineVariable(declaration.FeatureName, initialValue);

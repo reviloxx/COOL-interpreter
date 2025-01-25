@@ -17,14 +17,14 @@ public class DispatchNode(string methodName, IEnumerable<ExpressionNode> argumen
         {
             dispatchObject = _expression.Execute(env);
             if (dispatchObject == null)
-                throw new Exception($"Dispatch error: null object reference at line {Line}, column {Column}");
+                throw new Exception($"Dispatch error: null object reference at line {_line}, column {_column}");
                 
             // If there's a static type (@Type), use that class
             if (_staticType != null)
             {
                 classNode = env.LookupClass(_staticType.TypeName);
                 if (classNode == null)
-                    throw new Exception($"Static dispatch type {_staticType.TypeName} not found at line {Line}, column {Column}");
+                    throw new Exception($"Static dispatch type {_staticType.TypeName} not found at line {_line}, column {_column}");
             }
             else
             {
@@ -37,13 +37,13 @@ public class DispatchNode(string methodName, IEnumerable<ExpressionNode> argumen
             // For implicit dispatch, use 'self'
             dispatchObject = env.LookupVariable("self");
             if (dispatchObject == null)
-                throw new Exception($"Implicit dispatch error: 'self' not found at line {Line}, column {Column}");
+                throw new Exception($"Implicit dispatch error: 'self' not found at line {_line}, column {_column}");
                 
             classNode = env.GetObjectClass(dispatchObject);
         }
 
         if (classNode == null)
-            throw new Exception($"Cannot determine class for dispatch at line {Line}, column {Column}");
+            throw new Exception($"Cannot determine class for dispatch at line {_line}, column {_column}");
 
         // 2. Evaluate all arguments
         var evaluatedArgs = new List<object?>();
@@ -73,7 +73,7 @@ public class DispatchNode(string methodName, IEnumerable<ExpressionNode> argumen
             }
             
             if (method == null)
-                throw new Exception($"Method {_methodId.Name} not found in class {classNode.ClassName} or its parents at line {Line}, column {Column}");
+                throw new Exception($"Method {_methodId.Name} not found in class {classNode.ClassName} or its parents at line {_line}, column {_column}");
         }
 
         // 4. Create new scope for method execution
@@ -85,7 +85,7 @@ public class DispatchNode(string methodName, IEnumerable<ExpressionNode> argumen
             
             // Bind parameters to arguments
             if (method.Parameters.Count() != evaluatedArgs.Count)
-                throw new Exception($"Method {_methodId.Name} expects {method.Parameters.Count()} arguments but got {evaluatedArgs.Count} at line {Line}, column {Column}");
+                throw new Exception($"Method {_methodId.Name} expects {method.Parameters.Count()} arguments but got {evaluatedArgs.Count} at line {_line}, column {_column}");
                 
             for (int i = 0; i < method.Parameters.Count(); i++)
             {

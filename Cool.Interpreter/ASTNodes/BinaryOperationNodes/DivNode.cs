@@ -15,12 +15,12 @@ public class DivNode(ExpressionNode leftOperand, ExpressionNode rightOperand, Pa
         {
             if (rightInt == 0)
             {
-                throw new DivideByZeroException($"Division by 0 at line {Line}, column {Column}");
+                throw new DivideByZeroException($"Division by 0 at line {_line}, column {_column}");
             }
 
             return leftInt / rightInt;
         }
 
-        throw new Exception($"Type error: '/' operation expects two Ints but got {leftValue?.GetType().Name} and {rightValue?.GetType().Name} at line {Line}, column {Column}");
+        throw new Exception($"Type error: '/' operation expects two Ints but got {leftValue?.GetType().Name} and {rightValue?.GetType().Name} at line {_line}, column {_column}");
     }
 }

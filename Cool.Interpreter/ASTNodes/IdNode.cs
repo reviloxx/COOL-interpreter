@@ -9,6 +9,6 @@ public class IdNode(string name, ParserRuleContext? context) : ExpressionNode(co
         // Look up the variable in the current environment
         var value = env.LookupVariable(Name);
 
-        return value ?? throw new Exception($"Variable '{Name}' not found at line {Line}, column {Column}");
+        return value ?? throw new Exception($"Variable '{Name}' not found at line {_line}, column {_column}");
     }
 }
